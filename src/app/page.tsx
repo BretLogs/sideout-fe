@@ -1,65 +1,162 @@
+import Link from "next/link";
 import Image from "next/image";
+
+const MENU_ITEMS = [
+  { name: "Espresso", price: "—" },
+  { name: "Americano", price: "—" },
+  { name: "Latte", price: "—" },
+  { name: "Cappuccino", price: "—" },
+  { name: "Cold Brew", price: "—" },
+  { name: "Pastries", price: "—" },
+];
+
+const GALLERY_IMAGES = [
+  {
+    src: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=800&q=80",
+    alt: "Coffee cup",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=800&q=80",
+    alt: "Coffee shop",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=800&q=80",
+    alt: "Café interior",
+  },
+];
+
+const HERO_IMAGE =
+  "https://images.unsplash.com/photo-1442512595331-e89e73853f31?auto=format&fit=crop&w=1600&q=80";
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div className="min-h-screen flex flex-col bg-white">
+      {/* Hero — primary green dominant, text on green */}
+      <section
+        id="hero"
+        className="relative min-h-[85vh] flex flex-col justify-center px-6 py-20 md:px-12 lg:px-24 bg-sideout-green text-sideout-beige"
+      >
+        <div className="absolute inset-0 overflow-hidden">
+          <Image
+            src={HERO_IMAGE}
+            alt=""
+            fill
+            className="object-cover opacity-25"
+            priority
+            sizes="100vw"
+          />
+          <div className="absolute inset-0 bg-sideout-green/85" />
+        </div>
+        <div className="relative z-10">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-normal tracking-tight text-sideout-beige">
+            Sideout
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="mt-6 text-lg md:text-xl text-sideout-beige/95 max-w-md font-normal">
+            Empty Pools Filled with Stories
           </p>
+          <p className="mt-4 text-base text-sideout-beige/80 max-w-sm">
+            Coffee for the court. A sit-and-chill spot for pickleball players
+            and coffee lovers.
+          </p>
+          <nav className="mt-12 flex flex-wrap gap-4 text-sm">
+            <a
+              href="#menu"
+              className="text-sideout-beige underline underline-offset-4 hover:text-white hover:no-underline"
+            >
+              Menu
+            </a>
+            <a
+              href="#gallery"
+              className="text-sideout-beige underline underline-offset-4 hover:text-white hover:no-underline"
+            >
+              Gallery
+            </a>
+            <Link
+              href="/dashboard"
+              className="text-sideout-beige underline underline-offset-4 hover:text-white hover:no-underline"
+            >
+              Loyalty
+            </Link>
+          </nav>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      {/* Menu — white/beige section with strong green headings */}
+      <section
+        id="menu"
+        className="border-t-4 border-sideout-green bg-sideout-beige px-6 py-20 md:px-12 lg:px-24"
+      >
+        <h2 className="text-2xl md:text-3xl font-normal tracking-tight text-sideout-green">
+          Menu
+        </h2>
+        <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {MENU_ITEMS.map((item) => (
+            <li
+              key={item.name}
+              className="flex justify-between py-2 border-b border-sideout-green/20 text-sideout-green"
+            >
+              <span className="font-medium">{item.name}</span>
+              <span className="text-sideout-green/70">{item.price}</span>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-6 text-sm text-sideout-green/70">
+          Prices at the counter. Ask about our seasonal offerings.
+        </p>
+      </section>
+
+      {/* Gallery — Unsplash placeholders */}
+      <section
+        id="gallery"
+        className="border-t-4 border-sideout-green bg-white px-6 py-20 md:px-12 lg:px-24"
+      >
+        <h2 className="text-2xl md:text-3xl font-normal tracking-tight text-sideout-green">
+          Gallery
+        </h2>
+        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {GALLERY_IMAGES.map((img, i) => (
+            <div
+              key={i}
+              className="relative aspect-[4/3] overflow-hidden border-2 border-sideout-green/20"
+            >
+              <Image
+                src={img.src}
+                alt={img.alt}
+                fill
+                className="object-cover"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              />
+            </div>
+          ))}
         </div>
-      </main>
+      </section>
+
+      {/* Join Loyalty — green CTA block */}
+      <section
+        id="loyalty"
+        className="border-t-4 border-sideout-green bg-sideout-green px-6 py-20 md:px-12 lg:px-24 text-sideout-beige"
+      >
+        <h2 className="text-2xl md:text-3xl font-normal tracking-tight text-sideout-beige">
+          Loyalty
+        </h2>
+        <p className="mt-4 max-w-md text-sideout-beige/90">
+          Get a stamp with every drink. Collect 10 and your next coffee is on
+          us.
+        </p>
+        <Link
+          href="/dashboard"
+          className="mt-8 inline-block bg-sideout-beige text-sideout-green px-6 py-3 text-sm font-medium hover:bg-white transition-colors"
+        >
+          Join loyalty program
+        </Link>
+      </section>
+
+      <footer className="border-t-4 border-sideout-green bg-sideout-beige px-6 py-8 md:px-12 lg:px-24 text-sm text-sideout-green/70 flex flex-wrap items-center justify-between gap-4">
+        <span>Sideout — Empty Pools Filled with Stories</span>
+        <Link href="/barista" className="text-sideout-green font-medium hover:underline">
+          Staff
+        </Link>
+      </footer>
     </div>
   );
 }
