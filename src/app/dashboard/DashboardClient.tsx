@@ -14,19 +14,12 @@ type Profile = {
   stamp_count: number;
 };
 
-const isDev =
-  process.env.NODE_ENV === "development" ||
-  process.env.NEXT_PUBLIC_DEV_TOOLS === "true";
-
 export function DashboardClient({
   profile,
-  fromDevStamp = false,
 }: {
   profile: Profile | null;
-  fromDevStamp?: boolean;
 }) {
   const [showQR, setShowQR] = useState(false);
-  const [hideDevBanner, setHideDevBanner] = useState(false);
 
   function handleSignOut() {
     const form = document.createElement("form");
@@ -38,24 +31,9 @@ export function DashboardClient({
   const stampCount = profile?.stamp_count ?? 0;
   const stampsRemaining = Math.max(0, STAMPS_TOTAL - stampCount);
   const canRedeem = stampCount >= STAMPS_TOTAL;
-  const showDevBanner = isDev && fromDevStamp && !hideDevBanner;
 
   return (
     <div className="min-h-screen bg-sideout-beige text-sideout-green px-6 py-12 md:px-12 lg:px-24">
-      {showDevBanner && (
-        <div className="mb-6 rounded-lg bg-amber-100 border border-amber-300 px-4 py-3 text-sm text-amber-900 flex items-center justify-between gap-3">
-          <span>
-            <strong>DEV:</strong> Simulated barista scan — +1 stamp added. This is what the card looks like after a scan.
-          </span>
-          <button
-            type="button"
-            onClick={() => setHideDevBanner(true)}
-            className="shrink-0 text-amber-700 hover:underline"
-          >
-            Dismiss
-          </button>
-        </div>
-      )}
       <header className="flex justify-between items-center mb-12">
         <Link href="/" className="text-xl font-normal tracking-tight">
           Sideout

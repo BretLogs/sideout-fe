@@ -1,19 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import {
+  BARISTA_SESSION_COOKIE_NAME,
+  getBaristaSessionFromToken,
+} from "@/lib/barista/session";
 
 export async function POST(request: NextRequest) {
   try {
+    const token = request.cookies.get(BARISTA_SESSION_COOKIE_NAME)?.value;
+    if (!token) {
+      return NextResponse.json(
+        { error: "Not signed in. Please enter your PIN." },
+        { status: 401 }
+      );
+    }
+
+    const supabase = await createClient();
+    const baristaSession = await getBaristaSessionFromToken(supabase, token);
+    if (!baristaSession) {
+      return NextResponse.json(
+        { error: "Session expired. Please enter your PIN again." },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
-    const { userId, pin, redeem } = body as {
+    const { userId, redeem } = body as {
       userId?: string;
-      pin?: string;
       redeem?: boolean;
     };
-
-    const expectedPin = process.env.BARISTA_PIN;
-    if (!expectedPin || pin !== expectedPin) {
-      return NextResponse.json({ error: "Invalid PIN" }, { status: 401 });
-    }
 
     if (!userId || typeof userId !== "string") {
       return NextResponse.json(
@@ -22,7 +37,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = await createClient();
+    const baristaId = baristaSession.baristaId;
 
     if (redeem) {
       const { data: profile } = await supabase
@@ -53,6 +68,7 @@ export async function POST(request: NextRequest) {
       const { error: txError } = await supabase.from("transactions").insert({
         user_id: userId,
         type: "reward_redeemed",
+        barista_id: baristaId,
       });
 
       if (txError) {
@@ -96,6 +112,7 @@ export async function POST(request: NextRequest) {
     const { error: txError } = await supabase.from("transactions").insert({
       user_id: userId,
       type: "stamp_added",
+      barista_id: baristaId,
     });
 
     if (txError) {

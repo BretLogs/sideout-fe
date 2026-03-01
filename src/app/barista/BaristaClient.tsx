@@ -51,8 +51,13 @@ async function requestCameraPermission(): Promise<{ ok: true } | { ok: false; me
   }
 }
 
+const fetchOpts = { credentials: "include" as const };
+
+type BaristaInfo = { id: string; name: string } | null;
+
 export function BaristaClient() {
   const [pin, setPin] = useState("");
+  const [barista, setBarista] = useState<BaristaInfo>(null);
   const [authenticated, setAuthenticated] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [scanning, setScanning] = useState(false);
@@ -61,81 +66,88 @@ export function BaristaClient() {
     stampCount: number;
     rewardAvailable: boolean;
   } | null>(null);
-  const [redeemMode, setRedeemMode] = useState(false);
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const scanAreaId = "barista-qr-reader";
 
-  const submitPin = useCallback(() => {
+  const loadSession = useCallback(async () => {
+    try {
+      const res = await fetch("/api/barista/me", { ...fetchOpts, method: "GET" });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.barista) {
+        setBarista(data.barista);
+        setAuthenticated(true);
+      }
+    } catch {
+      // not signed in
+    }
+  }, []);
+
+  useEffect(() => {
+    loadSession();
+  }, [loadSession]);
+
+  const submitPin = useCallback(async () => {
     setError(null);
-    if (pin.length !== 4) {
-      setError("Enter 4 digits");
+    if (pin.length !== 6) {
+      setError("Enter 6 digits");
       return;
     }
-    fetch("/api/barista/verify-pin", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ pin }),
-    })
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.valid) setAuthenticated(true);
-        else setError("Wrong PIN");
-      })
-      .catch(() => setError("Something went wrong"));
+    try {
+      const res = await fetch("/api/barista/verify-pin", {
+        ...fetchOpts,
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pin }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (data.valid && data.barista) {
+        setBarista(data.barista);
+        setAuthenticated(true);
+        setPin("");
+      } else {
+        setError(data.error || "Wrong PIN");
+      }
+    } catch {
+      setError("Something went wrong");
+    }
   }, [pin]);
 
-  const addStamp = useCallback(
-    async (userId: string) => {
+  const lockUp = useCallback(async () => {
+    try {
+      await fetch("/api/barista/logout", { ...fetchOpts, method: "POST" });
+    } finally {
+      setBarista(null);
+      setAuthenticated(false);
       setError(null);
-      const res = await fetch("/api/barista/stamp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId,
-          pin,
-          redeem: false,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error || "Failed");
-        return;
-      }
-      setLastScanned({
-        userId,
-        stampCount: data.stamp_count,
-        rewardAvailable: data.reward_available ?? false,
-      });
-    },
-    [pin]
-  );
+      setLastScanned(null);
+    }
+  }, []);
 
-  const redeem = useCallback(
-    async (userId: string) => {
-      setError(null);
-      const res = await fetch("/api/barista/stamp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId,
-          pin,
-          redeem: true,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error || "Failed");
-        return;
-      }
-      setLastScanned({
-        userId,
-        stampCount: 0,
-        rewardAvailable: false,
-      });
-      setRedeemMode(false);
-    },
-    [pin]
-  );
+  const addStamp = useCallback(async (userId: string) => {
+    setError(null);
+    const res = await fetch("/api/barista/stamp", {
+      ...fetchOpts,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, redeem: false }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.status === 401) {
+      setAuthenticated(false);
+      setBarista(null);
+      setError("Session expired. Please enter your PIN again.");
+      return;
+    }
+    if (!res.ok) {
+      setError(data.error || "Something went wrong");
+      return;
+    }
+    setLastScanned({
+      userId,
+      stampCount: data.stamp_count,
+      rewardAvailable: data.reward_available ?? false,
+    });
+  }, []);
 
   const startScanner = useCallback(async () => {
     if (scannerRef.current) return;
@@ -163,11 +175,7 @@ export function BaristaClient() {
           html5Qr.stop();
           scannerRef.current = null;
           setScanning(false);
-          if (redeemMode) {
-            redeem(decodedText);
-          } else {
-            addStamp(decodedText);
-          }
+          addStamp(decodedText);
         },
         () => {}
       );
@@ -182,7 +190,7 @@ export function BaristaClient() {
       );
       scannerRef.current = null;
     }
-  }, [addStamp, redeem, redeemMode]);
+  }, [addStamp]);
 
   const stopScanner = useCallback(() => {
     if (scannerRef.current) {
@@ -203,124 +211,130 @@ export function BaristaClient() {
   if (!authenticated) {
     return (
       <div className="min-h-screen bg-sideout-beige text-sideout-green flex flex-col items-center justify-center px-6">
-        <h1 className="text-2xl font-normal tracking-tight">Barista</h1>
-        <p className="mt-2 text-sideout-green/80 text-sm">
-          Enter store PIN to continue.
+        <h1 className="text-2xl md:text-3xl font-normal tracking-tight text-center">
+          Barista
+        </h1>
+        <p className="mt-3 text-sideout-green/80 text-sm text-center max-w-xs">
+          Enter your 6-digit PIN to start.
         </p>
         <input
           type="password"
           inputMode="numeric"
-          maxLength={4}
+          maxLength={6}
           value={pin}
           onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))}
           onKeyDown={(e) => e.key === "Enter" && submitPin()}
-          className="mt-6 w-32 text-center text-xl tracking-widest border border-sideout-green/30 bg-transparent py-3 text-sideout-green"
-          placeholder="····"
-          aria-label="Store PIN"
+          className="mt-8 w-40 text-center text-2xl tracking-[0.4em] border-2 border-sideout-green/40 bg-white rounded-lg py-4 text-sideout-green focus:outline-none focus:ring-2 focus:ring-sideout-green/50"
+          placeholder="••••••"
+          aria-label="Your 6-digit PIN"
         />
         <button
           type="button"
           onClick={submitPin}
-          className="mt-4 bg-sideout-green text-sideout-beige px-6 py-2 text-sm font-medium hover:bg-sideout-green/90"
+          className="mt-6 w-full max-w-xs bg-sideout-green text-sideout-beige py-4 text-lg font-medium rounded-lg hover:bg-sideout-green/90 transition-colors"
         >
-          Enter
+          Continue
         </button>
         {error && (
-          <p className="mt-4 text-sm text-red-600">{error}</p>
+          <p className="mt-4 text-sm text-red-600 text-center">{error}</p>
         )}
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-sideout-beige text-sideout-green px-6 py-8 md:px-12">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-2xl font-normal tracking-tight">Barista</h1>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => {
-              setRedeemMode(false);
-              stopScanner();
-            }}
-            className={`px-4 py-2 text-sm border ${
-              !redeemMode
-                ? "bg-sideout-green text-sideout-beige border-sideout-green"
-                : "border-sideout-green/30"
-            }`}
-          >
-            Add stamp
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setRedeemMode(true);
-              stopScanner();
-            }}
-            className={`px-4 py-2 text-sm border ${
-              redeemMode
-                ? "bg-sideout-green text-sideout-beige border-sideout-green"
-                : "border-sideout-green/30"
-            }`}
-          >
-            Redeem
-          </button>
+    <div className="min-h-screen bg-sideout-beige text-sideout-green px-4 py-6 md:px-8 md:py-8">
+      <header className="flex flex-wrap items-center justify-between gap-4 mb-8">
+        <div>
+          <h1 className="text-xl md:text-2xl font-normal tracking-tight">
+            Barista
+          </h1>
+          <p className="mt-0.5 text-sm text-sideout-green/80">
+            Signed in as <span className="font-medium text-sideout-green">{barista?.name ?? "—"}</span>
+          </p>
         </div>
-      </div>
+        <button
+          type="button"
+          onClick={lockUp}
+          className="px-4 py-2.5 text-sm font-medium border-2 border-sideout-green/50 text-sideout-green rounded-lg hover:bg-sideout-green/10 transition-colors"
+        >
+          Lock up
+        </button>
+      </header>
 
       {error && (
-        <p className="mt-4 text-sm text-red-600">{error}</p>
+        <div className="mb-6 p-4 rounded-lg bg-red-50 border border-red-200">
+          <p className="text-sm text-red-700">{error}</p>
+        </div>
       )}
 
       {lastScanned && (
-        <div className="mt-6 p-4 border border-sideout-green/20 bg-white/50">
-          <p className="text-sm text-sideout-green/80">
-            {redeemMode ? "Reward redeemed." : "Stamp added."}
+        <div className="mb-6 p-5 rounded-xl border-2 border-sideout-green/20 bg-white shadow-sm">
+          <p className="text-base font-medium text-sideout-green">
+            Stamp added.
           </p>
-          <p className="text-sm mt-1">
-            Stamps: {lastScanned.stampCount}
-            {lastScanned.rewardAvailable && " — Reward available!"}
+          <p className="mt-1 text-sm text-sideout-green/80">
+            Customer now has {lastScanned.stampCount} of 10 stamps.
+            {lastScanned.rewardAvailable && (
+              <span className="block mt-1 text-sideout-green/70">
+                Reward available (redeem coming soon).
+              </span>
+            )}
           </p>
-          {lastScanned.rewardAvailable && !redeemMode && (
-            <button
-              type="button"
-              onClick={() => redeem(lastScanned!.userId)}
-              className="mt-3 bg-sideout-green text-sideout-beige px-4 py-2 text-sm"
-            >
-              Redeem for customer
-            </button>
-          )}
         </div>
       )}
 
-      <div className="mt-8">
-        <p className="text-sm text-sideout-green/70 mb-3">
-          Camera access is required to scan customer QR codes. When you tap the button below, your browser will ask for permission.
+      <section className="max-w-md">
+        <h2 className="text-lg font-medium text-sideout-green mb-2">
+          Add a stamp
+        </h2>
+        <p className="text-sm text-sideout-green/70 mb-4">
+          Point your camera at the customer&apos;s loyalty QR code. You&apos;ll need to allow camera access when asked.
         </p>
         <div
           id={scanAreaId}
-          className="overflow-hidden rounded-lg border border-sideout-green/20 bg-black/5"
-          style={{ width: "100%", maxWidth: 320, minHeight: 240 }}
+          className="overflow-hidden rounded-xl border-2 border-sideout-green/20 bg-black/5"
+          style={{ width: "100%", minHeight: 240 }}
         />
         {!scanning ? (
           <button
             type="button"
             onClick={startScanner}
-            className="mt-4 bg-sideout-green text-sideout-beige px-6 py-3 text-sm font-medium hover:bg-sideout-green/90"
-            aria-label={redeemMode ? "Scan to redeem (camera required)" : "Scan customer QR (camera required)"}
+            className="mt-4 w-full bg-sideout-green text-sideout-beige py-4 text-base font-medium rounded-xl hover:bg-sideout-green/90 transition-colors"
+            aria-label="Open camera to scan customer QR code"
           >
-            {redeemMode ? "Scan to redeem" : "Scan customer QR"}
+            Tap to scan
           </button>
         ) : (
           <button
             type="button"
             onClick={stopScanner}
-            className="mt-4 border border-sideout-green px-6 py-3 text-sm"
+            className="mt-4 w-full border-2 border-sideout-green py-4 text-base font-medium rounded-xl text-sideout-green hover:bg-sideout-green/10 transition-colors"
           >
-            Stop
+            Stop camera
           </button>
         )}
-      </div>
+      </section>
+
+      <section className="flex flex-col mt-10 pt-6 border-t border-sideout-green/20">
+        <div className="flex flex-col items-center gap-3">
+          <button
+            type="button"
+            disabled
+            className="flex-1 max-w-[200px] py-3 px-4 text-sm font-medium rounded-lg border-2 border-sideout-green/20 text-sideout-green/50 bg-sideout-green/5 cursor-not-allowed relative"
+            aria-disabled="true"
+            title="Coming soon"
+          >
+            Redeem free coffee
+            <span className="absolute -top-1 -right-1 bg-amber-100 text-amber-800 text-[10px] font-semibold px-1.5 py-0.5 rounded">
+              Soon
+            </span>
+          </button>
+          <span className="text-xs text-sideout-green/50">
+            Redeem will be available soon.
+          </span>
+        </div>
+      </section>
     </div>
   );
 }

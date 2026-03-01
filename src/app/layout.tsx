@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { DevStampButton } from "@/components/DevStampButton";
 
 export const metadata: Metadata = {
   title: "Sideout — Empty Pools Filled with Stories",
@@ -17,7 +16,6 @@ export default function RootLayout({
     <html lang="en">
       <body className="antialiased font-sans bg-white text-sideout-green">
         {children}
-        <DevStampButton />
       </body>
     </html>
   );

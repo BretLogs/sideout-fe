@@ -5,10 +5,7 @@ import { DashboardClient } from "./DashboardClient";
 
 export const dynamic = "force-dynamic";
 
-type Props = { searchParams: Promise<{ from?: string }> };
-
-export default async function DashboardPage({ searchParams }: Props) {
-  const params = await searchParams;
+export default async function DashboardPage() {
   const session = await getSession();
   if (!session) {
     redirect("/login?next=/dashboard");
@@ -34,7 +31,6 @@ export default async function DashboardPage({ searchParams }: Props) {
         email: profile.email ?? null,
         stamp_count: profile.stamp_count ?? 0,
       }}
-      fromDevStamp={params.from === "dev-stamp"}
     />
   );
 }

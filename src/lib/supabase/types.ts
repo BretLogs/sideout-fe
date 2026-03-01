@@ -23,5 +23,19 @@ export interface Transaction {
   id: string;
   user_id: string;
   type: TransactionType;
+  barista_id?: string | null;
   created_at: string;
+}
+
+export interface Barista {
+  id: string;
+  name: string;
+  pin: string;
+}
+
+export interface BaristaSession {
+  id: string;
+  barista_id: string;
+  token: string;
+  expires_at: string;
 }
