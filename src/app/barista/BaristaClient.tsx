@@ -65,6 +65,7 @@ export function BaristaClient() {
     userId: string;
     stampCount: number;
     rewardAvailable: boolean;
+    customerName?: string;
   } | null>(null);
   const [redeemMode, setRedeemMode] = useState(false);
   const scannerRef = useRef<Html5Qrcode | null>(null);
@@ -147,6 +148,7 @@ export function BaristaClient() {
       userId,
       stampCount: data.stamp_count,
       rewardAvailable: data.reward_available ?? false,
+      customerName: data.customer_name,
     });
   }, []);
 
@@ -333,7 +335,7 @@ export function BaristaClient() {
           <p className="mt-1 text-sm text-sideout-green/80">
             {redeemMode
               ? "Customer's card has been reset. They can start earning stamps again."
-              : `Customer now has ${lastScanned.stampCount} of 10 stamps.`}
+              : `You have stamped ${lastScanned.customerName ?? "this customer"}'s Loyalty card.`}
             {lastScanned.rewardAvailable && !redeemMode && (
               <span className="block mt-2">
                 <button

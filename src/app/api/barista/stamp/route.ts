@@ -113,13 +113,18 @@ export async function POST(request: NextRequest) {
 
     const { data: profile } = await supabase
       .from("profiles")
-      .select("id, stamp_count")
+      .select("id, stamp_count, username, full_name, email")
       .eq("id", userId)
       .single();
 
     if (!profile) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
+
+    const customerName =
+      profile.username
+        ? `@${profile.username}`
+        : (profile.full_name ?? profile.email ?? "Customer");
 
     const current = profile.stamp_count ?? 0;
 
@@ -170,6 +175,7 @@ export async function POST(request: NextRequest) {
         success: true,
         stamp_count: 0,
         reward_available: false,
+        customer_name: customerName,
       });
     }
 
@@ -213,6 +219,7 @@ export async function POST(request: NextRequest) {
       success: true,
       stamp_count: clearAfterTen ? 0 : newCount,
       reward_available: false,
+      customer_name: customerName,
     });
   } catch {
     return NextResponse.json(
