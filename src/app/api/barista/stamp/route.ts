@@ -46,9 +46,35 @@ export async function POST(request: NextRequest) {
         .eq("id", userId)
         .single();
 
-      if (!profile || profile.stamp_count < 10) {
+      if (!profile) {
+        return NextResponse.json({ error: "User not found" }, { status: 404 });
+      }
+
+      const { data: cardToRedeem } = await supabase
+        .from("loyalty_cards")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("status", "completed")
+        .order("completed_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      const now = new Date().toISOString();
+      if (cardToRedeem) {
+        await supabase
+          .from("loyalty_cards")
+          .update({ status: "redeemed", redeemed_at: now })
+          .eq("id", cardToRedeem.id);
+      } else if ((profile.stamp_count ?? 0) >= 10) {
+        await supabase.from("loyalty_cards").insert({
+          user_id: userId,
+          status: "redeemed",
+          completed_at: now,
+          redeemed_at: now,
+        });
+      } else {
         return NextResponse.json(
-          { error: "Not enough stamps to redeem" },
+          { error: "No completed card to redeem" },
           { status: 400 }
         );
       }
@@ -95,11 +121,64 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const newCount = Math.min((profile.stamp_count ?? 0) + 1, 10);
+    const current = profile.stamp_count ?? 0;
+
+    if (current >= 10) {
+      const { data: existingCompleted } = await supabase
+        .from("loyalty_cards")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("status", "completed")
+        .order("completed_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (!existingCompleted) {
+        await supabase.from("loyalty_cards").insert({
+          user_id: userId,
+          status: "completed",
+          completed_at: new Date().toISOString(),
+        });
+      }
+
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({ stamp_count: 0 })
+        .eq("id", userId);
+
+      if (updateError) {
+        return NextResponse.json(
+          { error: updateError.message },
+          { status: 500 }
+        );
+      }
+
+      const { error: txError } = await supabase.from("transactions").insert({
+        user_id: userId,
+        type: "stamp_added",
+        barista_id: baristaId,
+      });
+
+      if (txError) {
+        return NextResponse.json(
+          { error: txError.message },
+          { status: 500 }
+        );
+      }
+
+      return NextResponse.json({
+        success: true,
+        stamp_count: 0,
+        reward_available: false,
+      });
+    }
+
+    const newCount = Math.min(current + 1, 10);
+    const clearAfterTen = newCount === 10;
 
     const { error: updateError } = await supabase
       .from("profiles")
-      .update({ stamp_count: newCount })
+      .update({ stamp_count: clearAfterTen ? 0 : newCount })
       .eq("id", userId);
 
     if (updateError) {
@@ -107,6 +186,14 @@ export async function POST(request: NextRequest) {
         { error: updateError.message },
         { status: 500 }
       );
+    }
+
+    if (newCount === 10) {
+      await supabase.from("loyalty_cards").insert({
+        user_id: userId,
+        status: "completed",
+        completed_at: new Date().toISOString(),
+      });
     }
 
     const { error: txError } = await supabase.from("transactions").insert({
@@ -124,8 +211,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      stamp_count: newCount,
-      reward_available: newCount >= 10,
+      stamp_count: clearAfterTen ? 0 : newCount,
+      reward_available: false,
     });
   } catch {
     return NextResponse.json(

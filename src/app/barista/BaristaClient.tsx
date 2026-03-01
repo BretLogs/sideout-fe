@@ -66,6 +66,7 @@ export function BaristaClient() {
     stampCount: number;
     rewardAvailable: boolean;
   } | null>(null);
+  const [redeemMode, setRedeemMode] = useState(false);
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const scanAreaId = "barista-qr-reader";
 
@@ -149,6 +150,33 @@ export function BaristaClient() {
     });
   }, []);
 
+  const redeem = useCallback(async (userId: string) => {
+    setError(null);
+    const res = await fetch("/api/barista/stamp", {
+      ...fetchOpts,
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, redeem: true }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.status === 401) {
+      setAuthenticated(false);
+      setBarista(null);
+      setError("Session expired. Please enter your PIN again.");
+      return;
+    }
+    if (!res.ok) {
+      setError(data.error || "Something went wrong");
+      return;
+    }
+    setLastScanned({
+      userId,
+      stampCount: 0,
+      rewardAvailable: false,
+    });
+    setRedeemMode(false);
+  }, []);
+
   const startScanner = useCallback(async () => {
     if (scannerRef.current) return;
     setError(null);
@@ -175,7 +203,11 @@ export function BaristaClient() {
           html5Qr.stop();
           scannerRef.current = null;
           setScanning(false);
-          addStamp(decodedText);
+          if (redeemMode) {
+            redeem(decodedText);
+          } else {
+            addStamp(decodedText);
+          }
         },
         () => {}
       );
@@ -190,7 +222,7 @@ export function BaristaClient() {
       );
       scannerRef.current = null;
     }
-  }, [addStamp]);
+  }, [addStamp, redeem, redeemMode]);
 
   const stopScanner = useCallback(() => {
     if (scannerRef.current) {
@@ -262,6 +294,31 @@ export function BaristaClient() {
         </button>
       </header>
 
+      <div className="flex flex-wrap items-center gap-2 mb-4">
+        <button
+          type="button"
+          onClick={() => { setRedeemMode(false); stopScanner(); }}
+          className={`px-4 py-2 text-sm font-medium rounded-lg border-2 ${
+            !redeemMode
+              ? "bg-sideout-green text-sideout-beige border-sideout-green"
+              : "border-sideout-green/30 text-sideout-green"
+          }`}
+        >
+          Add stamp
+        </button>
+        <button
+          type="button"
+          onClick={() => { setRedeemMode(true); stopScanner(); }}
+          className={`px-4 py-2 text-sm font-medium rounded-lg border-2 ${
+            redeemMode
+              ? "bg-sideout-green text-sideout-beige border-sideout-green"
+              : "border-sideout-green/30 text-sideout-green"
+          }`}
+        >
+          Redeem
+        </button>
+      </div>
+
       {error && (
         <div className="mb-6 p-4 rounded-lg bg-red-50 border border-red-200">
           <p className="text-sm text-red-700">{error}</p>
@@ -271,13 +328,21 @@ export function BaristaClient() {
       {lastScanned && (
         <div className="mb-6 p-5 rounded-xl border-2 border-sideout-green/20 bg-white shadow-sm">
           <p className="text-base font-medium text-sideout-green">
-            Stamp added.
+            {redeemMode ? "Reward redeemed." : "Stamp added."}
           </p>
           <p className="mt-1 text-sm text-sideout-green/80">
-            Customer now has {lastScanned.stampCount} of 10 stamps.
-            {lastScanned.rewardAvailable && (
-              <span className="block mt-1 text-sideout-green/70">
-                Reward available (redeem coming soon).
+            {redeemMode
+              ? "Customer's card has been reset. They can start earning stamps again."
+              : `Customer now has ${lastScanned.stampCount} of 10 stamps.`}
+            {lastScanned.rewardAvailable && !redeemMode && (
+              <span className="block mt-2">
+                <button
+                  type="button"
+                  onClick={() => redeem(lastScanned!.userId)}
+                  className="bg-sideout-green text-sideout-beige px-4 py-2 text-sm font-medium rounded-lg"
+                >
+                  Redeem for customer
+                </button>
               </span>
             )}
           </p>
@@ -301,9 +366,9 @@ export function BaristaClient() {
             type="button"
             onClick={startScanner}
             className="mt-4 w-full bg-sideout-green text-sideout-beige py-4 text-base font-medium rounded-xl hover:bg-sideout-green/90 transition-colors"
-            aria-label="Open camera to scan customer QR code"
+            aria-label={redeemMode ? "Scan to redeem" : "Scan customer QR to add stamp"}
           >
-            Tap to scan
+            {redeemMode ? "Tap to scan (redeem)" : "Tap to scan"}
           </button>
         ) : (
           <button
@@ -314,26 +379,6 @@ export function BaristaClient() {
             Stop camera
           </button>
         )}
-      </section>
-
-      <section className="flex flex-col mt-10 pt-6 border-t border-sideout-green/20">
-        <div className="flex flex-col items-center gap-3">
-          <button
-            type="button"
-            disabled
-            className="flex-1 max-w-[200px] py-3 px-4 text-sm font-medium rounded-lg border-2 border-sideout-green/20 text-sideout-green/50 bg-sideout-green/5 cursor-not-allowed relative"
-            aria-disabled="true"
-            title="Coming soon"
-          >
-            Redeem free coffee
-            <span className="absolute -top-1 -right-1 bg-amber-100 text-amber-800 text-[10px] font-semibold px-1.5 py-0.5 rounded">
-              Soon
-            </span>
-          </button>
-          <span className="text-xs text-sideout-green/50">
-            Redeem will be available soon.
-          </span>
-        </div>
       </section>
     </div>
   );
