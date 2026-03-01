@@ -1,30 +1,18 @@
-import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { createEdgeClient } from "@/lib/supabase/edge";
+import { SESSION_COOKIE_NAME, getSessionCookieOptions, getSessionFromToken } from "@/lib/auth/session";
 
 export async function updateSession(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({
-    request,
-  });
+  const response = NextResponse.next({ request });
+  const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            request.cookies.set(name, value);
-            supabaseResponse.cookies.set(name, value, options);
-          });
-        },
-      },
+  if (token) {
+    const supabase = createEdgeClient();
+    const session = await getSessionFromToken(supabase, token);
+    if (!session) {
+      response.cookies.set(SESSION_COOKIE_NAME, "", { ...getSessionCookieOptions(), maxAge: 0 });
     }
-  );
+  }
 
-  await supabase.auth.getUser();
-
-  return supabaseResponse;
+  return response;
 }

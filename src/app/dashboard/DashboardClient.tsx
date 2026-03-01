@@ -8,6 +8,7 @@ const STAMPS_TOTAL = 10;
 
 type Profile = {
   id: string;
+  username: string | null;
   full_name: string | null;
   email: string | null;
   stamp_count: number;
@@ -26,6 +27,14 @@ export function DashboardClient({
 }) {
   const [showQR, setShowQR] = useState(false);
   const [hideDevBanner, setHideDevBanner] = useState(false);
+
+  function handleSignOut() {
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = "/api/auth/logout";
+    document.body.appendChild(form);
+    form.submit();
+  }
   const stampCount = profile?.stamp_count ?? 0;
   const stampsRemaining = Math.max(0, STAMPS_TOTAL - stampCount);
   const canRedeem = stampCount >= STAMPS_TOTAL;
@@ -51,17 +60,28 @@ export function DashboardClient({
         <Link href="/" className="text-xl font-normal tracking-tight">
           Sideout
         </Link>
-        <Link
-          href="/"
-          className="text-sm text-sideout-green/70 hover:underline"
-        >
-          Back to home
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link
+            href="/"
+            className="text-sm text-sideout-green/70 hover:underline"
+          >
+            Back to home
+          </Link>
+          <button
+            type="button"
+            onClick={handleSignOut}
+            className="text-sm text-sideout-green/70 hover:underline"
+          >
+            Sign out
+          </button>
+        </div>
       </header>
 
       <h1 className="text-2xl font-normal tracking-tight">Loyalty card</h1>
       <p className="mt-2 text-sideout-green/80">
-        {profile?.full_name || profile?.email || "Demo"}
+        {profile?.username
+          ? `@${profile.username}`
+          : profile?.full_name || profile?.email || "—"}
       </p>
 
       {/* Stamp card — filled = solid green + check; empty = outline + number */}

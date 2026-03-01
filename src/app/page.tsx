@@ -77,6 +77,12 @@ export default function Home() {
             >
               Loyalty
             </Link>
+            <Link
+              href="/login"
+              className="text-sideout-beige underline underline-offset-4 hover:text-white hover:no-underline"
+            >
+              Sign in
+            </Link>
           </nav>
         </div>
       </section>
@@ -144,7 +150,7 @@ export default function Home() {
           us.
         </p>
         <Link
-          href="/dashboard"
+          href="/signup"
           className="mt-8 inline-block bg-sideout-beige text-sideout-green px-6 py-3 text-sm font-medium hover:bg-white transition-colors"
         >
           Join loyalty program
@@ -153,9 +159,14 @@ export default function Home() {
 
       <footer className="border-t-4 border-sideout-green bg-sideout-beige px-6 py-8 md:px-12 lg:px-24 text-sm text-sideout-green/70 flex flex-wrap items-center justify-between gap-4">
         <span>Sideout — Empty Pools Filled with Stories</span>
-        <Link href="/barista" className="text-sideout-green font-medium hover:underline">
-          Staff
-        </Link>
+        <div className="flex gap-4">
+          <Link href="/login" className="text-sideout-green font-medium hover:underline">
+            Sign in
+          </Link>
+          <Link href="/barista" className="text-sideout-green font-medium hover:underline">
+            Staff
+          </Link>
+        </div>
       </footer>
     </div>
   );
