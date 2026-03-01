@@ -11,6 +11,19 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async headers() {
+    return [
+      {
+        source: "/barista",
+        headers: [
+          {
+            key: "Permissions-Policy",
+            value: "camera=(self)",
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

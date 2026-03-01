@@ -3,6 +3,54 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { Html5Qrcode } from "html5-qrcode";
 
+/** Request camera permission and return a user-friendly error message on failure. */
+async function requestCameraPermission(): Promise<{ ok: true } | { ok: false; message: string }> {
+  if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) {
+    return {
+      ok: false,
+      message: "Camera is not supported in this browser. Try a different browser or device.",
+    };
+  }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "environment" },
+    });
+    stream.getTracks().forEach((track) => track.stop());
+    return { ok: true };
+  } catch (err) {
+    const name = err instanceof Error ? (err as DOMException).name : "";
+    const message = err instanceof Error ? err.message : String(err);
+    if (name === "NotAllowedError" || message.toLowerCase().includes("permission")) {
+      return {
+        ok: false,
+        message:
+          "Camera access was denied. Please allow camera in your browser or device settings, then try again.",
+      };
+    }
+    if (name === "NotFoundError") {
+      return { ok: false, message: "No camera found on this device." };
+    }
+    if (name === "NotReadableError" || name === "OverconstrainedError") {
+      return {
+        ok: false,
+        message:
+          "Camera is in use or unavailable. Close other apps using the camera and try again.",
+      };
+    }
+    if (name === "SecurityError") {
+      return {
+        ok: false,
+        message:
+          "Camera access is blocked. Use HTTPS and allow camera permission for this site.",
+      };
+    }
+    return {
+      ok: false,
+      message: message || "Could not access camera. Please check settings and try again.",
+    };
+  }
+}
+
 export function BaristaClient() {
   const [pin, setPin] = useState("");
   const [authenticated, setAuthenticated] = useState(false);
@@ -89,16 +137,28 @@ export function BaristaClient() {
     [pin]
   );
 
-  const startScanner = useCallback(() => {
+  const startScanner = useCallback(async () => {
     if (scannerRef.current) return;
     setError(null);
     setLastScanned(null);
+
+    const permission = await requestCameraPermission();
+    if (!permission.ok) {
+      setError(permission.message);
+      return;
+    }
+
     const html5Qr = new Html5Qrcode(scanAreaId);
     scannerRef.current = html5Qr;
-    html5Qr
-      .start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 200, height: 200 } },
+
+    const startOptions = { facingMode: "environment" };
+    const config = { fps: 10, qrbox: { width: 200, height: 200 } };
+
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      await html5Qr.start(
+        startOptions,
+        config,
         (decodedText) => {
           html5Qr.stop();
           scannerRef.current = null;
@@ -110,12 +170,18 @@ export function BaristaClient() {
           }
         },
         () => {}
-      )
-      .then(() => setScanning(true))
-      .catch((err: Error) => {
-        setError(err.message || "Could not start camera");
-        scannerRef.current = null;
-      });
+      );
+      setScanning(true);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Could not start camera";
+      setError(
+        message.includes("NotAllowedError") || message.toLowerCase().includes("permission")
+          ? "Camera access was denied. Please allow camera in your browser or device settings, then try again."
+          : message || "Could not start camera. Please try again."
+      );
+      scannerRef.current = null;
+    }
   }, [addStamp, redeem, redeemMode]);
 
   const stopScanner = useCallback(() => {
@@ -228,6 +294,9 @@ export function BaristaClient() {
       )}
 
       <div className="mt-8">
+        <p className="text-sm text-sideout-green/70 mb-3">
+          Camera access is required to scan customer QR codes. When you tap the button below, your browser will ask for permission.
+        </p>
         <div
           id={scanAreaId}
           className="overflow-hidden rounded-lg border border-sideout-green/20 bg-black/5"
@@ -238,6 +307,7 @@ export function BaristaClient() {
             type="button"
             onClick={startScanner}
             className="mt-4 bg-sideout-green text-sideout-beige px-6 py-3 text-sm font-medium hover:bg-sideout-green/90"
+            aria-label={redeemMode ? "Scan to redeem (camera required)" : "Scan customer QR (camera required)"}
           >
             {redeemMode ? "Scan to redeem" : "Scan customer QR"}
           </button>
