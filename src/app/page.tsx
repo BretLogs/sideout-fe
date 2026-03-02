@@ -128,6 +128,39 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Location — map below Gallery */}
+      <section
+        id="location"
+        className="border-t-4 border-sideout-green bg-sideout-beige px-6 py-20 md:px-12 lg:px-24"
+      >
+        <h2 className="text-2xl md:text-3xl font-normal tracking-tight text-sideout-green">
+          Find us
+        </h2>
+        <p className="mt-2 text-sideout-green/80">
+          Lumban, Philippines, 4014
+        </p>
+        <div className="mt-6 relative w-full overflow-hidden rounded-xl border-2 border-sideout-green/20 bg-sideout-green/5">
+          <div className="relative w-full aspect-[16/9] min-h-[280px]">
+            <iframe
+              src="https://www.google.com/maps?q=Lumban,+Philippines+4014&output=embed"
+              title="Sideout location — Lumban, Philippines"
+              className="absolute inset-0 w-full h-full border-0"
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+          </div>
+        </div>
+        <a
+          href="https://maps.app.goo.gl/es5TKK6CAWiLBxat7?g_st=ic"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-4 inline-block text-sm font-medium text-sideout-green underline underline-offset-4 hover:no-underline"
+        >
+          Open in Google Maps →
+        </a>
+      </section>
+
       {/* Join Loyalty — green CTA block */}
       <section
         id="loyalty"
@@ -159,7 +192,15 @@ export default function Home() {
           />
           <span>— Empty Pools Filled with Stories</span>
         </span>
-        <div className="flex gap-4">
+        <div className="flex flex-wrap items-center gap-4">
+          <a
+            href="https://maps.app.goo.gl/es5TKK6CAWiLBxat7?g_st=ic"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sideout-green font-medium hover:underline"
+          >
+            Lumban, Philippines, 4014
+          </a>
           <Link href="/login" className="text-sideout-green font-medium hover:underline">
             Sign in
           </Link>
