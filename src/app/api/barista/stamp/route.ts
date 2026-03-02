@@ -60,18 +60,23 @@ export async function POST(request: NextRequest) {
         .maybeSingle();
 
       const now = new Date().toISOString();
+      let shouldResetStampCount = false;
+
       if (cardToRedeem) {
+        // Redeeming a card from history: only mark the card redeemed, do not reset current stamp count
         await supabase
           .from("loyalty_cards")
           .update({ status: "redeemed", redeemed_at: now })
           .eq("id", cardToRedeem.id);
       } else if ((profile.stamp_count ?? 0) >= 10) {
+        // Redeeming the current full card (no completed row yet): create redeemed card and reset count
         await supabase.from("loyalty_cards").insert({
           user_id: userId,
           status: "redeemed",
           completed_at: now,
           redeemed_at: now,
         });
+        shouldResetStampCount = true;
       } else {
         return NextResponse.json(
           { error: "No completed card to redeem" },
@@ -79,16 +84,18 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      const { error: updateError } = await supabase
-        .from("profiles")
-        .update({ stamp_count: 0 })
-        .eq("id", userId);
+      if (shouldResetStampCount) {
+        const { error: updateError } = await supabase
+          .from("profiles")
+          .update({ stamp_count: 0 })
+          .eq("id", userId);
 
-      if (updateError) {
-        return NextResponse.json(
-          { error: updateError.message },
-          { status: 500 }
-        );
+        if (updateError) {
+          return NextResponse.json(
+            { error: updateError.message },
+            { status: 500 }
+          );
+        }
       }
 
       const { error: txError } = await supabase.from("transactions").insert({
@@ -104,10 +111,11 @@ export async function POST(request: NextRequest) {
         );
       }
 
+      const currentStampCount = shouldResetStampCount ? 0 : (profile.stamp_count ?? 0);
       return NextResponse.json({
         success: true,
         message: "Reward redeemed",
-        stamp_count: 0,
+        stamp_count: currentStampCount,
       });
     }
 

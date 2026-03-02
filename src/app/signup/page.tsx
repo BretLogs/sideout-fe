@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { getSession } from "@/lib/auth/server";
 import { SignupForm } from "./SignupForm";
 
@@ -23,8 +24,14 @@ export default async function SignupPage({ searchParams }: Props) {
   return (
     <div className="min-h-screen bg-sideout-beige text-sideout-green flex flex-col">
       <header className="px-6 py-6 md:px-12 lg:px-24">
-        <Link href="/" className="text-xl font-normal tracking-tight">
-          Sideout
+        <Link href="/" className="inline-flex items-center">
+          <Image
+            src="/assets/sideout_logo.png"
+            alt="Sideout"
+            width={140}
+            height={42}
+            className="h-8 w-auto object-contain"
+          />
         </Link>
       </header>
       <main className="flex-1 flex flex-col items-center justify-center px-6 py-12">

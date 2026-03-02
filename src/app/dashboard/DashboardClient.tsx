@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { QRCodeSVG } from "qrcode.react";
 
 const STAMPS_TOTAL = 10;
@@ -57,8 +58,14 @@ export function DashboardClient({
   return (
     <div className="min-h-screen bg-sideout-beige text-sideout-green px-6 py-8 md:px-12 md:py-10 lg:px-24">
       <header className="flex justify-between items-center mb-8">
-        <Link href="/" className="text-xl font-normal tracking-tight">
-          Sideout
+        <Link href="/" className="inline-flex items-center">
+          <Image
+            src="/assets/sideout_logo.png"
+            alt="Sideout"
+            width={140}
+            height={42}
+            className="h-8 w-auto object-contain"
+          />
         </Link>
         <div className="flex items-center gap-4">
           <Link

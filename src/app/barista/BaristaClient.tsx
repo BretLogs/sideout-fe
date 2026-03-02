@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
 import { Html5Qrcode } from "html5-qrcode";
 
 /** Request camera permission and return a user-friendly error message on failure. */
@@ -245,6 +247,15 @@ export function BaristaClient() {
   if (!authenticated) {
     return (
       <div className="min-h-screen bg-sideout-beige text-sideout-green flex flex-col items-center justify-center px-6">
+        <Link href="/" className="mb-6">
+          <Image
+            src="/assets/sideout_logo.png"
+            alt="Sideout"
+            width={160}
+            height={48}
+            className="h-10 w-auto object-contain"
+          />
+        </Link>
         <h1 className="text-2xl md:text-3xl font-normal tracking-tight text-center">
           Barista
         </h1>
@@ -279,13 +290,24 @@ export function BaristaClient() {
   return (
     <div className="min-h-screen bg-sideout-beige text-sideout-green px-4 py-6 md:px-8 md:py-8">
       <header className="flex flex-wrap items-center justify-between gap-4 mb-8">
-        <div>
-          <h1 className="text-xl md:text-2xl font-normal tracking-tight">
-            Barista
-          </h1>
-          <p className="mt-0.5 text-sm text-sideout-green/80">
-            Signed in as <span className="font-medium text-sideout-green">{barista?.name ?? "—"}</span>
-          </p>
+        <div className="flex items-center gap-3">
+          <Link href="/" className="shrink-0">
+            <Image
+              src="/assets/sideout_logo.png"
+              alt="Sideout"
+              width={100}
+              height={30}
+              className="h-7 w-auto object-contain"
+            />
+          </Link>
+          <div>
+            <h1 className="text-xl md:text-2xl font-normal tracking-tight">
+              Barista
+            </h1>
+            <p className="mt-0.5 text-sm text-sideout-green/80">
+              Signed in as <span className="font-medium text-sideout-green">{barista?.name ?? "—"}</span>
+            </p>
+          </div>
         </div>
         <button
           type="button"

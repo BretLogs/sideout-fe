@@ -1,30 +1,25 @@
 import Link from "next/link";
 import Image from "next/image";
+import { HeroVideo } from "./HeroVideo";
 
-const MENU_ITEMS = [
-  { name: "Espresso", price: "—" },
-  { name: "Americano", price: "—" },
-  { name: "Latte", price: "—" },
-  { name: "Cappuccino", price: "—" },
-  { name: "Cold Brew", price: "—" },
-  { name: "Pastries", price: "—" },
-];
+// Menu — commented out for later use
+// const MENU_ITEMS = [
+//   { name: "Espresso", price: "—" },
+//   { name: "Americano", price: "—" },
+//   { name: "Latte", price: "—" },
+//   { name: "Cappuccino", price: "—" },
+//   { name: "Cold Brew", price: "—" },
+//   { name: "Pastries", price: "—" },
+// ];
 
 const GALLERY_IMAGES = [
-  {
-    src: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=800&q=80",
-    alt: "Coffee cup",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=800&q=80",
-    alt: "Coffee shop",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=800&q=80",
-    alt: "Café interior",
-  },
+  { src: "/assets/whole_view_sideout.JPG", alt: "Sideout — whole view" },
+  { src: "/assets/coffee_with_model.jpeg", alt: "Coffee with model" },
+  { src: "/assets/waffle_and_coffee.jpeg", alt: "Waffle and coffee" },
+  // { src: "/assets/arbats.JPG", alt: "Waffle and coffee" },
 ];
 
+/** Fallback hero image when video doesn’t load or play */
 const HERO_IMAGE =
   "https://images.unsplash.com/photo-1442512595331-e89e73853f31?auto=format&fit=crop&w=1600&q=80";
 
@@ -37,19 +32,18 @@ export default function Home() {
         className="relative min-h-[85vh] flex flex-col justify-center px-6 py-20 md:px-12 lg:px-24 bg-sideout-green text-sideout-beige"
       >
         <div className="absolute inset-0 overflow-hidden">
-          <Image
-            src={HERO_IMAGE}
-            alt=""
-            fill
-            className="object-cover opacity-25"
-            priority
-            sizes="100vw"
-          />
-          <div className="absolute inset-0 bg-sideout-green/85" />
+          <HeroVideo fallbackImage={HERO_IMAGE} />
         </div>
         <div className="relative z-10">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-normal tracking-tight text-sideout-beige">
-            Sideout
+          <h1 className="flex items-center">
+            <Image
+              src="/assets/sideout_logo_white.png"
+              alt="Sideout"
+              width={240}
+              height={72}
+              className="h-12 w-auto md:h-14 lg:h-16 object-contain object-left"
+              priority
+            />
           </h1>
           <p className="mt-6 text-lg md:text-xl text-sideout-beige/95 max-w-md font-normal">
             Empty Pools Filled with Stories
@@ -58,13 +52,16 @@ export default function Home() {
             Coffee for the court. A sit-and-chill spot for pickleball players
             and coffee lovers.
           </p>
-          <nav className="mt-12 flex flex-wrap gap-4 text-sm">
-            <a
-              href="#menu"
-              className="text-sideout-beige underline underline-offset-4 hover:text-white hover:no-underline"
+          <p className="mt-2 text-sm text-sideout-beige/80 max-w-sm">
+            Every cup fills the story. Earn stamps with each visit — your next coffee could be on us.
+          </p>
+          <nav className="mt-12 flex flex-wrap items-center gap-4 text-sm">
+            <Link
+              href="/signup"
+              className="bg-sideout-beige text-sideout-green px-5 py-2.5 font-medium hover:bg-white transition-colors"
             >
-              Menu
-            </a>
+              Earn free coffee
+            </Link>
             <a
               href="#gallery"
               className="text-sideout-beige underline underline-offset-4 hover:text-white hover:no-underline"
@@ -72,14 +69,8 @@ export default function Home() {
               Gallery
             </a>
             <Link
-              href="/dashboard"
-              className="text-sideout-beige underline underline-offset-4 hover:text-white hover:no-underline"
-            >
-              Loyalty
-            </Link>
-            <Link
               href="/login"
-              className="text-sideout-beige underline underline-offset-4 hover:text-white hover:no-underline"
+              className="text-sideout-beige/90 underline underline-offset-4 hover:text-white hover:no-underline"
             >
               Sign in
             </Link>
@@ -87,8 +78,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Menu — white/beige section with strong green headings */}
-      <section
+      {/* Menu — commented out for later use */}
+      {/* <section
         id="menu"
         className="border-t-4 border-sideout-green bg-sideout-beige px-6 py-20 md:px-12 lg:px-24"
       >
@@ -109,9 +100,9 @@ export default function Home() {
         <p className="mt-6 text-sm text-sideout-green/70">
           Prices at the counter. Ask about our seasonal offerings.
         </p>
-      </section>
+      </section> */}
 
-      {/* Gallery — Unsplash placeholders */}
+      {/* Gallery */}
       <section
         id="gallery"
         className="border-t-4 border-sideout-green bg-white px-6 py-20 md:px-12 lg:px-24"
@@ -158,7 +149,16 @@ export default function Home() {
       </section>
 
       <footer className="border-t-4 border-sideout-green bg-sideout-beige px-6 py-8 md:px-12 lg:px-24 text-sm text-sideout-green/70 flex flex-wrap items-center justify-between gap-4">
-        <span>Sideout — Empty Pools Filled with Stories</span>
+        <span className="flex items-center gap-2">
+          <Image
+            src="/assets/sideout_logo.png"
+            alt="Sideout"
+            width={120}
+            height={36}
+            className="h-6 w-auto object-contain"
+          />
+          <span>— Empty Pools Filled with Stories</span>
+        </span>
         <div className="flex gap-4">
           <Link href="/login" className="text-sideout-green font-medium hover:underline">
             Sign in

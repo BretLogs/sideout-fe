@@ -5,6 +5,10 @@ export const metadata: Metadata = {
   title: "Sideout — Empty Pools Filled with Stories",
   description:
     "Coffee for the court. A sit-and-chill spot for pickleball players and coffee lovers.",
+  icons: {
+    icon: "/assets/side_out_logo_white_bg.png",
+    apple: "/assets/sideout_logo.png",
+  },
 };
 
 export default function RootLayout({
