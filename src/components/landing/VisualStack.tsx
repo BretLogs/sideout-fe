@@ -5,9 +5,9 @@ import { LoyaltyPerks } from "./LoyaltyPerks";
 const OVERLAY_WIDTH = "100%";
 const OVERLAY_HEIGHT = "90vh";
 
-/** Follows PNG alpha — shadows only the visible cup/hand, not the empty area */
-const OVERLAY_DROP_SHADOW =
-  "drop-shadow-[0_6px_18px_rgba(0,0,0,0.45)] drop-shadow-[0_12px_36px_rgba(0,0,0,0.35)] drop-shadow-[0_2px_8px_rgba(0,0,0,0.25)]";
+/** Applied to wrapper so shadow follows PNG alpha, not a white box */
+const OVERLAY_SHADOW_FILTER =
+  "drop-shadow(0 4px 12px rgba(0, 0, 0, 0.35)) drop-shadow(0 10px 28px rgba(0, 0, 0, 0.45)) drop-shadow(0 18px 48px rgba(0, 0, 0, 0.4))";
 
 export function VisualStack() {
   return (
@@ -24,7 +24,7 @@ export function VisualStack() {
         />
       </div>
 
-      {/* Overlay — centered horizontally; image centered in box */}
+      {/* Overlay — blend removes white PNG fringe on green; shadow on wrapper follows alpha */}
       <div
         className="pointer-events-none absolute top-0 z-30 mx-auto"
         style={{
@@ -34,14 +34,19 @@ export function VisualStack() {
           right: 0,
         }}
       >
-        <Image
-          src="/assets/images/sideout_bg_layover.png"
-          alt=""
-          fill
-          sizes="(max-width: 430px) 100vw, 430px"
-          className={`object-contain object-top ${OVERLAY_DROP_SHADOW}`}
-          priority
-        />
+        <div
+          className="relative h-full w-full"
+          style={{ filter: OVERLAY_SHADOW_FILTER }}
+        >
+          <Image
+            src="/assets/images/sideout_bg_layover.png"
+            alt=""
+            fill
+            sizes="(max-width: 430px) 100vw, 430px"
+            className="block object-contain object-top mix-blend-darken bg-transparent"
+            priority
+          />
+        </div>
       </div>
 
       <LoyaltyPerks />
