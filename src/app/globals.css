@@ -3,11 +3,13 @@
 :root {
   --sideout-green: #02332f;
   --sideout-cream: #d3ccc2;
+  --sideout-gold: #ffbd59;
 }
 
 @theme inline {
   --color-sideout-green: #02332f;
   --color-sideout-cream: #d3ccc2;
+  --color-sideout-gold: #ffbd59;
   --font-sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
