@@ -2,13 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Sideout — Empty Pools Filled with Stories",
-  description:
-    "Coffee for the court. A sit-and-chill spot for pickleball players and coffee lovers.",
-  icons: {
-    icon: "/assets/side_out_logo_white_bg.png",
-    apple: "/assets/sideout_logo.png",
-  },
+  title: "Sideout",
+  description: "Sideout",
 };
 
 export default function RootLayout({
@@ -18,8 +13,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased font-sans bg-white text-sideout-green">
-        {children}
+      <body className="antialiased font-sans">
+        <div className="mx-auto min-h-dvh w-full max-w-[430px] bg-sideout-green">
+          {children}
+        </div>
       </body>
     </html>
   );

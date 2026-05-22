@@ -4,13 +4,13 @@ import { BackButton } from "@/components/auth/BackButton";
 import { SocialSignIn } from "@/components/signup/SocialSignIn";
 
 export const metadata = {
-  title: "Sign up — Sideout",
+  title: "Sign in — Sideout",
 };
 
 const inputClassName =
   "w-full rounded-lg border border-sideout-cream/40 bg-sideout-green px-3 py-2 text-sm text-sideout-cream outline-none placeholder:text-sideout-cream/50 focus:border-sideout-cream";
 
-export default function SignUpPage() {
+export default function SignInPage() {
   return (
     <div className="min-h-dvh bg-sideout-green text-sideout-cream">
       <header className="px-5 pt-5">
@@ -28,10 +28,10 @@ export default function SignUpPage() {
           />
           <div className="space-y-2">
             <h1 className="text-2xl font-medium uppercase tracking-tight">
-              Sign up
+              Sign in
             </h1>
             <p className="text-sm text-sideout-cream/80">
-              Create an account to join the loyalty program.
+              Welcome back. Sign in to view your loyalty card.
             </p>
           </div>
         </div>
@@ -46,7 +46,7 @@ export default function SignUpPage() {
               type="text"
               autoComplete="username"
               className={inputClassName}
-              placeholder="Choose a username"
+              placeholder="Your username"
             />
           </div>
           <div className="space-y-1.5">
@@ -57,26 +57,26 @@ export default function SignUpPage() {
               id="password"
               name="password"
               type="password"
-              autoComplete="new-password"
+              autoComplete="current-password"
               className={inputClassName}
-              placeholder="Create a password"
+              placeholder="Your password"
             />
           </div>
           <button
             type="submit"
             className="w-full rounded-full bg-sideout-cream py-2.5 text-sm font-medium uppercase tracking-wide text-sideout-green transition-opacity hover:opacity-90"
           >
-            Create account
+            Sign in
           </button>
         </form>
         <SocialSignIn />
         <p className="mt-6 text-center text-sm text-sideout-cream/80">
-          Already have an account?{" "}
+          New here?{" "}
           <Link
-            href="/sign-in"
+            href="/signup"
             className="font-medium text-sideout-cream underline-offset-4 hover:underline"
           >
-            Sign in
+            Sign up
           </Link>
         </p>
       </main>
