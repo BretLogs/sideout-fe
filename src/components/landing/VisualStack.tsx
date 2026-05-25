@@ -1,13 +1,17 @@
-import Image from "next/image";
 import { LoyaltyPerks } from "./LoyaltyPerks";
 
 /** Tune overlay display size here (% width, vh height) */
 const OVERLAY_WIDTH = "100%";
 const OVERLAY_HEIGHT = "90vh";
 
-/** Applied to wrapper so shadow follows PNG alpha, not a white box */
-const OVERLAY_SHADOW_FILTER =
-  "drop-shadow(0 4px 12px rgba(0, 0, 0, 0.35)) drop-shadow(0 10px 28px rgba(0, 0, 0, 0.45)) drop-shadow(0 18px 48px rgba(0, 0, 0, 0.4))";
+const LAYOVER_SRC = "/assets/images/sideout_bg_layover.png";
+
+/**
+ * Native img (not next/image) so the optimizer never flattens alpha to a white matte.
+ * darken on #02332f knocks out near-white fringe without tinting the subject green.
+ */
+const OVERLAY_IMG_CLASS =
+  "pointer-events-none absolute inset-0 h-full w-full object-contain object-top mix-blend-darken";
 
 export function VisualStack() {
   return (
@@ -24,9 +28,9 @@ export function VisualStack() {
         />
       </div>
 
-      {/* Overlay — blend removes white PNG fringe on green; shadow on wrapper follows alpha */}
+      {/* Overlay — no wrapper filter; asset defringed; multiply blends on green */}
       <div
-        className="pointer-events-none absolute top-0 z-30 mx-auto"
+        className="pointer-events-none absolute top-0 z-30 mx-auto isolate"
         style={{
           width: OVERLAY_WIDTH,
           height: OVERLAY_HEIGHT,
@@ -34,19 +38,18 @@ export function VisualStack() {
           right: 0,
         }}
       >
-        <div
-          className="relative h-full w-full"
-          style={{ filter: OVERLAY_SHADOW_FILTER }}
-        >
-          <Image
-            src="/assets/images/sideout_bg_layover.png"
-            alt=""
-            fill
-            sizes="(max-width: 430px) 100vw, 430px"
-            className="block object-contain object-top mix-blend-darken bg-transparent"
-            priority
-          />
-        </div>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={LAYOVER_SRC}
+          alt=""
+          className={OVERLAY_IMG_CLASS}
+          style={{
+            filter:
+              "drop-shadow(0 4px 12px rgba(0,0,0,0.35)) drop-shadow(0 10px 28px rgba(0,0,0,0.45))",
+          }}
+          decoding="async"
+          fetchPriority="high"
+        />
       </div>
 
       <LoyaltyPerks />
