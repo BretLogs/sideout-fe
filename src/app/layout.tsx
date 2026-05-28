@@ -4,6 +4,9 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Sideout",
   description: "Sideout",
+  icons: {
+    icon: "/assets/svg/sideout_logo_light.svg",
+  },
 };
 
 export default function RootLayout({

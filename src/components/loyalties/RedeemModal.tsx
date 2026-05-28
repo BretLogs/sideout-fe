@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { MOCK_REDEEM_QR_VALUE } from "@/lib/loyalties/mockData";
 import { MockQrCode } from "./MockQrCode";
 import { playRedeemCelebration } from "./redeemCelebration";
 import { StampGrid } from "./StampGrid";
@@ -11,9 +10,16 @@ const IS_DEV = process.env.NODE_ENV === "development";
 type RedeemModalProps = {
   open: boolean;
   onClose: () => void;
+  redeemToken: string | null;
+  redeemMessage?: string | null;
 };
 
-export function RedeemModal({ open, onClose }: RedeemModalProps) {
+export function RedeemModal({
+  open,
+  onClose,
+  redeemToken,
+  redeemMessage,
+}: RedeemModalProps) {
   const titleId = useId();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const qrRef = useRef<HTMLDivElement>(null);
@@ -70,6 +76,8 @@ export function RedeemModal({ open, onClose }: RedeemModalProps) {
   };
 
   if (!open) return null;
+
+  const qrValue = redeemToken ?? "";
 
   return (
     <div
@@ -133,7 +141,8 @@ export function RedeemModal({ open, onClose }: RedeemModalProps) {
               <p className="text-xs leading-relaxed text-sideout-green/70">
                 {redeemed
                   ? "Your card has been redeemed. Show this to the counter staff if needed."
-                  : "Show this QR code to the counter to redeem your completed card."}
+                  : redeemMessage ??
+                    "Show this QR code to the counter to redeem your completed card."}
               </p>
             </div>
           </header>
@@ -145,11 +154,15 @@ export function RedeemModal({ open, onClose }: RedeemModalProps) {
             }`}
           >
             <div className="rounded-lg bg-sideout-cream p-3 shadow-inner">
-              <MockQrCode
-                value={MOCK_REDEEM_QR_VALUE}
-                size={300}
-                label="QR code for redeeming loyalty card"
-              />
+              {qrValue ? (
+                <MockQrCode
+                  value={qrValue}
+                  size={300}
+                  label="QR code for redeeming loyalty card"
+                />
+              ) : (
+                <p className="p-8 text-sm text-sideout-green">Loading QR…</p>
+              )}
             </div>
           </div>
 
