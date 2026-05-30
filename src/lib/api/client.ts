@@ -15,6 +15,7 @@ export class ApiError extends Error {
 type RequestOptions = {
   method?: string;
   body?: unknown;
+  token?: string | null;
 };
 
 export async function apiRequest<T>(
@@ -23,8 +24,11 @@ export async function apiRequest<T>(
 ): Promise<T> {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
-    Authorization: "Bearer dev",
   };
+
+  if (options.token) {
+    headers.Authorization = `Bearer ${options.token}`;
+  }
 
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method: options.method ?? "GET",

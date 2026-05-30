@@ -7,6 +7,7 @@ import {
   type LoyaltyResponse,
 } from "@/lib/api/loyalty";
 import { ApiError } from "@/lib/api/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { CardHistoryItem } from "./CardHistoryItem";
 import { DevCounterScanFab } from "./DevStampFab";
 import { MockQrCode } from "./MockQrCode";
@@ -26,6 +27,7 @@ function isoToDisplayDate(iso: string | null | undefined): string | null {
 }
 
 export function LoyaltiesView() {
+  const { getIdToken } = useAuth();
   const [loyalty, setLoyalty] = useState<LoyaltyResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -40,7 +42,12 @@ export function LoyaltiesView() {
     setLoading(true);
     setError(null);
     try {
-      const data = await getLoyalty();
+      const token = await getIdToken();
+      if (!token) {
+        setError("Please sign in to view your loyalty card.");
+        return;
+      }
+      const data = await getLoyalty(token);
       setLoyalty(data);
     } catch (err) {
       setError(
@@ -51,19 +58,21 @@ export function LoyaltiesView() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [getIdToken]);
 
   useEffect(() => {
     void loadLoyalty();
   }, [loadLoyalty]);
 
   const filledCount = loyalty?.active_card.pointCount ?? 0;
-  const displayName = loyalty?.display_name ?? "guest";
+  const handle = loyalty?.username ?? loyalty?.display_name ?? "guest";
   const counterToken = loyalty?.counter_token ?? "";
 
   const handleRedeem = async (loyaltyCardId: string) => {
     try {
-      const result = await createRedeemToken(loyaltyCardId);
+      const token = await getIdToken();
+      if (!token) return;
+      const result = await createRedeemToken(loyaltyCardId, token);
       setRedeemToken(result.token);
       setRedeemMessage(result.message);
       setRedeemOpen(true);
@@ -137,7 +146,7 @@ export function LoyaltiesView() {
               Loyalty card
             </h2>
             <p className="text-left text-sm text-sideout-cream/80">
-              @{displayName}
+              @{handle}
             </p>
           </div>
 

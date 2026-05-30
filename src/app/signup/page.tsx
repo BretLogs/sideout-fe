@@ -1,29 +1,27 @@
 import Image from "next/image";
-import Link from "next/link";
+
+import { AuthPageShell } from "@/components/auth/AuthPageShell";
 import { BackButton } from "@/components/auth/BackButton";
-import { SocialSignIn } from "@/components/signup/SocialSignIn";
+import { SignUpForm } from "@/components/auth/SignUpForm";
 
 export const metadata = {
   title: "Sign up — Sideout",
 };
 
-const inputClassName =
-  "w-full rounded-lg border border-sideout-cream/40 bg-sideout-green px-3 py-2 text-sm text-sideout-cream outline-none placeholder:text-sideout-cream/50 focus:border-sideout-cream";
-
 export default function SignUpPage() {
   return (
-    <div className="min-h-dvh bg-sideout-green text-sideout-cream">
+    <AuthPageShell>
       <header className="px-5 pt-5">
         <BackButton />
       </header>
-      <main className="flex flex-col justify-center px-6 pb-16 pt-4">
+      <main className="flex flex-col px-6 pb-16 pt-4">
         <div className="mb-8 space-y-4 text-center">
           <Image
             src="/assets/svg/sideout_logo_light.svg"
             alt="Sideout"
             width={810}
             height={810}
-            className="mx-auto h-auto w-full max-w-[55%]"
+            className="h-auto w-full"
             priority
           />
           <div className="space-y-2">
@@ -35,51 +33,8 @@ export default function SignUpPage() {
             </p>
           </div>
         </div>
-        <form className="space-y-4" action="#" method="post">
-          <div className="space-y-1.5">
-            <label htmlFor="username" className="text-sm font-medium">
-              Username
-            </label>
-            <input
-              id="username"
-              name="username"
-              type="text"
-              autoComplete="username"
-              className={inputClassName}
-              placeholder="Choose a username"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <label htmlFor="password" className="text-sm font-medium">
-              Password
-            </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              autoComplete="new-password"
-              className={inputClassName}
-              placeholder="Create a password"
-            />
-          </div>
-          <button
-            type="submit"
-            className="w-full rounded-full bg-sideout-cream py-2.5 text-sm font-medium uppercase tracking-wide text-sideout-green transition-opacity hover:opacity-90"
-          >
-            Create account
-          </button>
-        </form>
-        <SocialSignIn />
-        <p className="mt-6 text-center text-sm text-sideout-cream/80">
-          Already have an account?{" "}
-          <Link
-            href="/sign-in"
-            className="font-medium text-sideout-cream underline-offset-4 hover:underline"
-          >
-            Sign in
-          </Link>
-        </p>
+        <SignUpForm />
       </main>
-    </div>
+    </AuthPageShell>
   );
 }

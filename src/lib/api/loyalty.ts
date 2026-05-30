@@ -10,6 +10,7 @@ export type LoyaltyCard = {
 
 export type LoyaltyResponse = {
   counter_token: string;
+  username: string | null;
   display_name: string | null;
   active_card: LoyaltyCard;
   card_history: Array<{
@@ -34,19 +35,17 @@ export type RedeemTokenResponse = {
   message: string | null;
 };
 
-export async function getLoyalty(): Promise<LoyaltyResponse> {
-  const displayName =
-    process.env.NEXT_PUBLIC_DEV_DISPLAY_NAME ?? "devuser";
-  return apiRequest<LoyaltyResponse>(
-    `/me/loyalty?displayName=${encodeURIComponent(displayName)}`,
-  );
+export async function getLoyalty(token: string): Promise<LoyaltyResponse> {
+  return apiRequest<LoyaltyResponse>("/me/loyalty", { token });
 }
 
 export async function createRedeemToken(
   loyaltyCardId: string,
+  token: string,
 ): Promise<RedeemTokenResponse> {
   return apiRequest<RedeemTokenResponse>("/me/loyalty/redeem-tokens", {
     method: "POST",
     body: { loyalty_card_id: loyaltyCardId },
+    token,
   });
 }
