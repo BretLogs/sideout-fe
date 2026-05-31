@@ -20,9 +20,9 @@ export function VisualStack() {
       className="relative w-full overflow-visible bg-sideout-green"
       data-landing="visual-stack"
     >
-      {/* Background band — clipped; scales with shell (max 1024px) */}
+      {/* Background band — clipped to mobile viewport height */}
       <div
-        className="relative z-0 h-[54vh] w-full overflow-hidden md:h-[48vh]"
+        className="relative z-0 h-[54vh] w-full overflow-hidden"
         aria-hidden
       >
         <div

@@ -52,7 +52,7 @@ export function LoyaltyRulesModal({ open, onClose }: LoyaltyRulesModalProps) {
       >
         <h2
           id={titleId}
-          className="mb-4 text-xl font-bold uppercase tracking-tight md:text-2xl"
+          className="mb-4 text-xl font-bold uppercase tracking-tight"
         >
           Loyalty rules
         </h2>

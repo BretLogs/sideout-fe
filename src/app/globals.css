@@ -4,20 +4,9 @@
   --sideout-green: #02332f;
   --sideout-cream: #d3ccc2;
   --sideout-gold: #ffbd59;
-  /* iPad Pro 12.9" portrait — design reference frame */
-  --ipad-pro-width: 1024px;
-  --ipad-pro-height: 1366px;
-  --ipad-pro-aspect-ratio: 1024 / 1366;
-  --app-max-width: 100%;
-  --content-max-width: 430px;
-}
-
-@media (min-width: 768px) {
-  :root {
-    --app-max-width: min(100%, var(--ipad-pro-width));
-    /* ~62.5% of shell width, matching prior 480/768 proportion at 1024 */
-    --content-max-width: min(640px, 62.5vw);
-  }
+  /* Mobile-first shell — phone-width frame on all viewports */
+  --app-max-width: min(100%, 430px);
+  --content-max-width: 100%;
 }
 
 @theme inline {
@@ -27,7 +16,6 @@
   --font-sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
   --max-width-app: var(--app-max-width);
   --max-width-content: var(--content-max-width);
-  --aspect-ipad-pro: var(--ipad-pro-aspect-ratio);
 }
 
 body {

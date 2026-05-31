@@ -8,7 +8,7 @@ type ContentColumnProps = {
 export function ContentColumn({ children, className = "" }: ContentColumnProps) {
   return (
     <div
-      className={`mx-auto w-full max-w-content px-6 md:px-8 lg:px-10 ${className}`.trim()}
+      className={`mx-auto w-full max-w-content px-6 ${className}`.trim()}
     >
       {children}
     </div>

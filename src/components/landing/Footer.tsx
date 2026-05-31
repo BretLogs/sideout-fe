@@ -15,7 +15,7 @@ export function Footer() {
       <ContentColumn>
         <p
           data-landing="footer-part"
-          className="mb-6 text-[10px] leading-relaxed font-medium uppercase tracking-wide md:text-xs"
+          className="mb-6 text-[10px] leading-relaxed font-medium uppercase tracking-wide"
         >
           Follow us on social media
         </p>
@@ -40,7 +40,7 @@ export function Footer() {
         </nav>
         <p
           data-landing="footer-part"
-          className="mt-6 text-[10px] text-sideout-cream/60 md:text-xs"
+          className="mt-6 text-[10px] text-sideout-cream/60"
         >
           © {year} Sideout Café · Lumban, Laguna
         </p>

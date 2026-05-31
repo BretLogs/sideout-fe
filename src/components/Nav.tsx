@@ -30,27 +30,27 @@ export function Nav({ mode = "marketing" }: NavProps) {
             alt="Sideout"
             width={50}
             height={50}
-            className="h-8 w-8 shrink-0 md:h-9 md:w-9"
+            className="h-8 w-8 shrink-0"
             priority
           />
         </Link>
 
         {mode === "marketing" ? (
-          <div className="flex items-center gap-3 md:gap-4">
+          <div className="flex items-center gap-3">
             <Link
               href="#find-us"
               className={navGhostLinkClassName}
               aria-label="Find us"
             >
-              <MapPinIcon className="h-3.5 w-3.5 shrink-0 md:h-4 md:w-4" />
-              <span className="hidden sm:inline">Find us</span>
+              <MapPinIcon className="h-3.5 w-3.5 shrink-0" />
+              <span className="hidden min-[360px]:inline">Find us</span>
             </Link>
             <Link
               href="/signup"
               className={navJoinCtaClassName}
               aria-label="Join the loyalty program"
             >
-              <LoyaltyIcon className="h-3.5 w-3.5 shrink-0 md:h-4 md:w-4" />
+              <LoyaltyIcon className="h-3.5 w-3.5 shrink-0" />
               <span className="inline">Join loyalty</span>
             </Link>
           </div>

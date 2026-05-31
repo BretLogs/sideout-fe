@@ -27,7 +27,7 @@ export default function SignUpPage() {
               priority
             />
             <div className="space-y-2">
-              <h1 className="text-2xl font-medium uppercase tracking-tight md:text-3xl">
+              <h1 className="text-2xl font-medium uppercase tracking-tight">
                 Sign up
               </h1>
               <p className="text-sm text-sideout-cream/80">

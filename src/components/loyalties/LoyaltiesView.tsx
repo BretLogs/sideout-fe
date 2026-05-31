@@ -120,9 +120,9 @@ export function LoyaltiesView() {
   return (
     <>
       <div className="flex flex-col gap-8 pb-12">
-        <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-10">
-          <section className="space-y-2 text-center lg:text-left">
-            <h1 className="text-4xl font-medium uppercase tracking-tight md:text-5xl">
+        <div className="flex flex-col gap-8">
+          <section className="space-y-2 text-center">
+            <h1 className="text-4xl font-medium uppercase tracking-tight">
               Show at the counter
             </h1>
             <p className="text-sm text-sideout-cream/80">
@@ -137,7 +137,7 @@ export function LoyaltiesView() {
 
             <div
               ref={counterQrRef}
-              className="mt-6 flex justify-center rounded-2xl bg-sideout-cream p-6 lg:mt-8"
+              className="mt-6 flex justify-center rounded-2xl bg-sideout-cream p-6"
             >
               <MockQrCode
                 value={counterToken}
@@ -146,9 +146,9 @@ export function LoyaltiesView() {
             </div>
           </section>
 
-          <section className="space-y-4 text-center lg:text-left">
+          <section className="space-y-4 text-center">
             <div className="space-y-1">
-              <h2 className="text-lg font-medium uppercase tracking-tight md:text-xl">
+              <h2 className="text-lg font-medium uppercase tracking-tight">
                 Loyalty card
               </h2>
               <p className="text-sm text-sideout-cream/80">@{handle}</p>

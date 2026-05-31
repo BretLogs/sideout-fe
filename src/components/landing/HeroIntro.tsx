@@ -10,7 +10,7 @@ export function HeroIntro() {
     <SideoutHeroBand priority>
       <p
         data-landing="hero-tagline"
-        className="text-sm leading-relaxed text-sideout-cream/90 md:text-base"
+        className="text-sm leading-relaxed text-sideout-cream/90"
       >
         {HERO_TAGLINE}
       </p>

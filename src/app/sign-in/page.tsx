@@ -27,7 +27,7 @@ export default function SignInPage() {
               priority
             />
             <div className="space-y-2">
-              <h1 className="text-2xl font-medium uppercase tracking-tight md:text-3xl">
+              <h1 className="text-2xl font-medium uppercase tracking-tight">
                 Sign in
               </h1>
               <p className="text-sm text-sideout-cream/80">

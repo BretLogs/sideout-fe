@@ -9,7 +9,7 @@ const FILLER_Y_OFFSET = "15%";
 export function BottomFillerBackground() {
   return (
     <div
-      className="pointer-events-none fixed bottom-0 left-1/2 z-0 h-[55vh] max-h-[520px] w-full max-w-app -translate-x-1/2 overflow-hidden md:h-[45vh] lg:h-[38vh]"
+      className="pointer-events-none fixed bottom-0 left-1/2 z-0 h-[55vh] max-h-[520px] w-full max-w-app -translate-x-1/2 overflow-hidden"
       aria-hidden
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
