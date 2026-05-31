@@ -6,6 +6,7 @@ import {
   signInWithPopup,
   signOut as firebaseSignOut,
   type User,
+  type UserCredential,
 } from "firebase/auth";
 import {
   createContext,
@@ -40,6 +41,28 @@ type AuthContextValue = {
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
+
+function firebaseErrorCode(err: unknown): string {
+  return err && typeof err === "object" && "code" in err
+    ? String((err as { code: string }).code)
+    : "";
+}
+
+async function createOrSignInWithEmail(
+  email: string,
+  password: string,
+): Promise<UserCredential> {
+  const auth = getFirebaseAuth();
+  try {
+    return await createUserWithEmailAndPassword(auth, email, password);
+  } catch (err) {
+    if (firebaseErrorCode(err) !== "auth/email-already-in-use") {
+      throw err;
+    }
+    // Same email/password: finish signup after a failed profile step or duplicate submit.
+    return signInWithEmailAndPassword(auth, email, password);
+  }
+}
 
 function mapFirebaseError(code: string): string {
   switch (code) {
@@ -83,25 +106,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signUpWithEmail = useCallback(
     async (username: string, email: string, password: string) => {
+      const trimmedEmail = email.trim();
+      const normalizedUsername = username.trim().toLowerCase();
+
+      let credential: UserCredential;
       try {
-        const auth = getFirebaseAuth();
-        const credential = await createUserWithEmailAndPassword(
-          auth,
-          email.trim(),
-          password,
-        );
+        credential = await createOrSignInWithEmail(trimmedEmail, password);
+      } catch (err) {
+        return {
+          ok: false as const,
+          error: mapFirebaseError(firebaseErrorCode(err)),
+        };
+      }
+
+      try {
         const token = await credential.user.getIdToken();
-        await updateProfile(username.trim().toLowerCase(), token);
+        await updateProfile(normalizedUsername, token);
         return { ok: true as const };
       } catch (err) {
         if (err instanceof ApiError) {
           return { ok: false as const, error: err.message };
         }
-        const code =
-          err && typeof err === "object" && "code" in err
-            ? String((err as { code: string }).code)
-            : "";
-        return { ok: false as const, error: mapFirebaseError(code) };
+        return {
+          ok: false as const,
+          error:
+            "Your account exists, but we couldn't save your username. Sign in and try again.",
+        };
       }
     },
     [],
@@ -113,11 +143,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await signInWithEmailAndPassword(auth, email.trim(), password);
       return { ok: true as const };
     } catch (err) {
-      const code =
-        err && typeof err === "object" && "code" in err
-          ? String((err as { code: string }).code)
-          : "";
-      return { ok: false as const, error: mapFirebaseError(code) };
+      return {
+        ok: false as const,
+        error: mapFirebaseError(firebaseErrorCode(err)),
+      };
     }
   }, []);
 
@@ -128,11 +157,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await signInWithPopup(auth, provider);
       return { ok: true as const };
     } catch (err) {
-      const code =
-        err && typeof err === "object" && "code" in err
-          ? String((err as { code: string }).code)
-          : "";
-      return { ok: false as const, error: mapFirebaseError(code) };
+      return {
+        ok: false as const,
+        error: mapFirebaseError(firebaseErrorCode(err)),
+      };
     }
   }, []);
 

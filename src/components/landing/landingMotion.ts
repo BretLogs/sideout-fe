@@ -41,7 +41,7 @@ function revealOnScroll(
 
 /**
  * Landing-page motion: hero entrance, scroll reveals, and subtle parallax.
- * Overlay/layover alignment is intentionally untouched.
+ * VisualStack bg/layover are not animated — they share one width-locked scale.
  */
 export function initLandingMotion(root: HTMLElement): () => void {
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -108,25 +108,6 @@ export function initLandingMotion(root: HTMLElement): () => void {
         { y: 0, duration: 0.45, clearProps: "transform" },
         "-=0.4",
       );
-    }
-
-    const visualStack = root.querySelector<HTMLElement>(
-      "[data-landing='visual-stack']",
-    );
-    const visualBg = root.querySelector<HTMLElement>(
-      "[data-landing='visual-bg-inner']",
-    );
-    if (visualStack && visualBg) {
-      gsap.to(visualBg, {
-        yPercent: 14,
-        ease: "none",
-        scrollTrigger: {
-          trigger: visualStack,
-          start: "top bottom",
-          end: "bottom top",
-          scrub: 0.6,
-        },
-      });
     }
 
     const secondary = root.querySelector<HTMLElement>(

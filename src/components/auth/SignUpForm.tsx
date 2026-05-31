@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { SocialSignIn } from "@/components/signup/SocialSignIn";
 import { useAuth } from "@/contexts/AuthContext";
@@ -20,9 +20,11 @@ export function SignUpForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const submitInFlight = useRef(false);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    if (submitInFlight.current) return;
     setError(null);
 
     const normalizedUsername = username.trim().toLowerCase();
@@ -37,15 +39,19 @@ export function SignUpForm() {
       return;
     }
 
+    submitInFlight.current = true;
     setSubmitting(true);
-    const result = await signUpWithEmail(normalizedUsername, email, password);
-    setSubmitting(false);
-
-    if (!result.ok) {
-      setError(result.error);
-      return;
+    try {
+      const result = await signUpWithEmail(normalizedUsername, email, password);
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
+      router.replace("/loyalties");
+    } finally {
+      submitInFlight.current = false;
+      setSubmitting(false);
     }
-    router.replace("/loyalties");
   };
 
   return (
