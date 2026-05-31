@@ -26,6 +26,10 @@ export async function apiRequest<T>(
     "Content-Type": "application/json",
   };
 
+  if (API_BASE_URL.includes("ngrok")) {
+    headers["ngrok-skip-browser-warning"] = "true";
+  }
+
   if (options.token) {
     headers.Authorization = `Bearer ${options.token}`;
   }

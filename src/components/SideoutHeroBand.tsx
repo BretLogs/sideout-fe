@@ -22,14 +22,14 @@ export function SideoutHeroBand({
   return (
     <section
       data-landing="hero"
-      className={`relative isolate w-full overflow-x-hidden bg-sideout-green text-center text-sideout-cream ${className}`.trim()}
+      className={`relative isolate w-full overflow-hidden bg-sideout-green text-center text-sideout-cream ${className}`.trim()}
     >
-      <div className="pointer-events-none absolute inset-x-0 top-0 overflow-hidden" aria-hidden>
+      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={FILLER_SRC}
           alt=""
-          className="w-full h-auto max-w-full origin-top mix-blend-screen opacity-50"
+          className="h-full w-full object-cover object-top mix-blend-screen opacity-50"
           decoding="async"
         />
       </div>
