@@ -1,7 +1,8 @@
 import { AuthGuard } from "@/components/auth/AuthGuard";
-import { Nav } from "@/components/Nav";
+import { BottomFillerBackground } from "@/components/BottomFillerBackground";
+import { ContentColumn } from "@/components/layout/ContentColumn";
 import { LoyaltiesView } from "@/components/loyalties/LoyaltiesView";
-import { SideoutHeroBand } from "@/components/SideoutHeroBand";
+import { Nav } from "@/components/Nav";
 
 export const metadata = {
   title: "Loyalties — Sideout",
@@ -9,14 +10,18 @@ export const metadata = {
 
 export default function LoyaltiesPage() {
   return (
-    <div className="min-h-dvh bg-sideout-green text-sideout-cream">
-      <Nav variant="dark" />
-      <SideoutHeroBand />
-      <main className="px-6 py-8">
-        <AuthGuard>
-          <LoyaltiesView />
-        </AuthGuard>
-      </main>
+    <div className="relative min-h-dvh bg-sideout-green text-sideout-cream">
+      <BottomFillerBackground />
+      <div className="relative z-10">
+        <Nav mode="app" />
+        <main className="py-8">
+          <ContentColumn>
+            <AuthGuard>
+              <LoyaltiesView />
+            </AuthGuard>
+          </ContentColumn>
+        </main>
+      </div>
     </div>
   );
 }

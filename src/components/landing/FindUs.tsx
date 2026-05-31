@@ -1,10 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
 
-const MAPS_URL = "https://maps.app.goo.gl/VgeENftnCvKG2f7T9";
+import { ContentColumn } from "@/components/layout/ContentColumn";
 
-const pillClassName =
-  "inline-flex items-center justify-center gap-2 rounded-full bg-sideout-cream px-10 py-2.5 text-sm font-medium uppercase tracking-wide text-sideout-green transition-opacity hover:opacity-90";
+import { creamPillClassName } from "./ctaStyles";
+
+const MAPS_URL = "https://maps.app.goo.gl/VgeENftnCvKG2f7T9";
 
 function MapsIcon() {
   return (
@@ -22,34 +23,53 @@ export function FindUs() {
   return (
     <section
       id="find-us"
-      className="bg-sideout-green px-6 pt-16 pb-10 text-center text-sideout-cream"
+      data-landing="find-us"
+      className="bg-sideout-green pt-16 pb-10 text-center text-sideout-cream"
       aria-label="Find us"
     >
-      <h2 className="mb-3 text-4xl font-bold uppercase tracking-tight">
-        FIND US
-      </h2>
-      <p className="mb-8 text-xs font-medium uppercase tracking-[0.2em] text-sideout-cream/90">
-        LUMBAN, PHILIPPINES, 4014
-      </p>
+      <ContentColumn>
+        <h2
+          data-landing-part
+          className="mb-3 text-4xl font-bold uppercase tracking-tight md:text-5xl"
+        >
+          FIND US
+        </h2>
+        <p
+          data-landing-part
+          className="mb-8 text-xs font-medium uppercase tracking-[0.2em] text-sideout-cream/90"
+        >
+          LUMBAN, PHILIPPINES, 4014
+        </p>
+      </ContentColumn>
 
-      <Image
-        src="/assets/images/map_view.png"
-        alt="Map to Sideout Café in Lumban, Laguna"
-        width={2738}
-        height={3416}
-        sizes="(max-width: 430px) 100vw, 430px"
-        className="h-auto w-full"
-        priority={false}
-      />
-      <Link
-        href={MAPS_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={`mt-6 ${pillClassName}`}
+      {/* Map scales with app shell (up to iPad Pro width), not the narrow content column */}
+      <div
+        data-landing-part
+        className="mx-auto w-full max-w-app px-6 md:px-8 lg:px-10"
       >
-        <MapsIcon />
-        Go to Sideout
-      </Link>
+        <Image
+          src="/assets/images/map_view.png"
+          alt="Map to Sideout Café in Lumban, Laguna"
+          width={2738}
+          height={3416}
+          sizes="(max-width: 767px) calc(100vw - 3rem), (max-width: 1023px) calc(100vw - 4rem), 1024px"
+          className="mx-auto h-auto w-full max-w-full"
+          priority={false}
+        />
+      </div>
+
+      <ContentColumn className="mt-6">
+        <Link
+          href={MAPS_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          data-landing-part
+          className={creamPillClassName}
+        >
+          <MapsIcon />
+          Go to Sideout
+        </Link>
+      </ContentColumn>
     </section>
   );
 }

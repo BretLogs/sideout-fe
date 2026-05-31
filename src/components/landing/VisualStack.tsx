@@ -1,56 +1,54 @@
 import { LoyaltyPerks } from "./LoyaltyPerks";
 
-/** Tune overlay display size here (% width, vh height) */
-const OVERLAY_WIDTH = "100%";
-const OVERLAY_HEIGHT = "90vh";
-
+const BG_SRC = "/assets/images/sideout_bg.png";
 const LAYOVER_SRC = "/assets/images/sideout_bg_layover.png";
+
+/** Native bg asset dimensions */
+const BG_WIDTH = 3200;
+const BG_HEIGHT = 4019;
 
 /**
  * Native img (not next/image) so the optimizer never flattens alpha to a white matte.
- * darken on #02332f knocks out near-white fringe without tinting the subject green.
+ * Width-locked (w-full h-auto) so the layover scales with the shell up to iPad Pro width.
  */
 const OVERLAY_IMG_CLASS =
-  "pointer-events-none absolute inset-0 h-full w-full object-contain object-top mix-blend-darken";
+  "pointer-events-none absolute left-0 top-0 z-50 w-full h-auto max-w-full origin-top visual-stack-overlay";
 
 export function VisualStack() {
   return (
-    <div className="relative flex w-full flex-col items-center bg-sideout-green">
-      {/* Section 2 — background, centered */}
-      <div className="relative z-0 h-[54vh] w-full overflow-hidden" aria-hidden>
+    <div
+      className="relative w-full overflow-visible bg-sideout-green"
+      data-landing="visual-stack"
+    >
+      {/* Background band — clipped; scales with shell (max 1024px) */}
+      <div
+        className="relative z-0 h-[54vh] w-full overflow-hidden md:h-[48vh]"
+        aria-hidden
+      >
         <div
-          className="absolute inset-0 bg-center bg-no-repeat"
+          data-landing="visual-bg-inner"
+          className="absolute inset-x-0 top-0 h-[120%] w-full bg-top bg-no-repeat will-change-transform"
           style={{
-            backgroundImage: "url(/assets/images/sideout_bg.png)",
-            backgroundSize: "100%",
-            backgroundPosition: "center top",
+            backgroundImage: `url(${BG_SRC})`,
+            backgroundSize: "100% auto",
+            aspectRatio: `${BG_WIDTH} / ${BG_HEIGHT}`,
           }}
         />
       </div>
 
-      {/* Overlay — no wrapper filter; asset defringed; multiply blends on green */}
-      <div
-        className="pointer-events-none absolute top-0 z-30 mx-auto isolate"
+      {/* Layover — same width scale as bg */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={LAYOVER_SRC}
+        alt=""
+        className={OVERLAY_IMG_CLASS}
         style={{
-          width: OVERLAY_WIDTH,
-          height: OVERLAY_HEIGHT,
-          left: 0,
-          right: 0,
+          filter:
+            "drop-shadow(0 4px 12px rgba(0,0,0,0.35)) drop-shadow(0 10px 28px rgba(0,0,0,0.45))",
         }}
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={LAYOVER_SRC}
-          alt=""
-          className={OVERLAY_IMG_CLASS}
-          style={{
-            filter:
-              "drop-shadow(0 4px 12px rgba(0,0,0,0.35)) drop-shadow(0 10px 28px rgba(0,0,0,0.45))",
-          }}
-          decoding="async"
-          fetchPriority="high"
-        />
-      </div>
+        decoding="async"
+        fetchPriority="high"
+      />
 
       <LoyaltyPerks />
     </div>

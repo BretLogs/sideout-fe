@@ -58,7 +58,7 @@ export function DevCounterScanFab({
           ? "All stamp slots filled (dev)"
           : "Dev: simulate counter scanning your QR"
       }
-      className="fixed bottom-6 right-5 z-40 flex flex-col items-center gap-0.5 rounded-full bg-sideout-green px-3 py-2.5 shadow-[0_4px_20px_rgba(2,51,47,0.45)] ring-2 ring-sideout-gold/50 transition-transform hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100 sm:right-[max(1.25rem,calc(50%-215px+1.25rem))]"
+      className="fixed bottom-6 z-40 flex flex-col items-center gap-0.5 rounded-full bg-sideout-green px-3 py-2.5 shadow-[0_4px_20px_rgba(2,51,47,0.45)] ring-2 ring-sideout-gold/50 transition-transform hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100 right-[max(1.25rem,calc((100vw-min(100vw,var(--app-max-width)))/2+1.25rem))]"
       aria-label="Dev: simulate counter QR scan"
     >
       <span className="text-[9px] font-bold uppercase tracking-wider text-sideout-gold">

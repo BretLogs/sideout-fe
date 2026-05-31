@@ -95,7 +95,7 @@ export function RedeemModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="relative z-10 max-h-[92dvh] w-full max-w-[430px] overflow-y-auto overscroll-y-contain rounded-t-3xl bg-sideout-cream text-sideout-green shadow-[0_-8px_40px_rgba(2,51,47,0.35)] [-webkit-overflow-scrolling:touch] sm:mx-6 sm:max-h-[90dvh] sm:rounded-3xl sm:shadow-[0_16px_48px_rgba(2,51,47,0.4)]"
+        className="relative z-10 max-h-[92dvh] w-full max-w-content overflow-y-auto overscroll-y-contain rounded-t-3xl bg-sideout-cream text-sideout-green shadow-[0_-8px_40px_rgba(2,51,47,0.35)] [-webkit-overflow-scrolling:touch] sm:mx-6 sm:max-h-[90dvh] sm:rounded-3xl sm:shadow-[0_16px_48px_rgba(2,51,47,0.4)]"
       >
         <div className="sticky top-0 z-20 bg-sideout-cream pt-3">
           <div

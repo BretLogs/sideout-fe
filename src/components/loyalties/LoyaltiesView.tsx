@@ -120,60 +120,65 @@ export function LoyaltiesView() {
   return (
     <>
       <div className="flex flex-col gap-8 pb-12">
-        <section className="space-y-2 text-center">
-          <h1 className="text-4xl font-medium uppercase tracking-tight">
-            Show at the counter
-          </h1>
-          <p className="text-sm text-sideout-cream/80">
-            Show this QR code to the counter after your purchase to get your
-            stamp
-          </p>
-          {loyalty.earn_status.limitReached && loyalty.earn_status.message ? (
-            <p className="text-xs text-sideout-gold">{loyalty.earn_status.message}</p>
-          ) : null}
-        </section>
-
-        <div
-          ref={counterQrRef}
-          className="flex justify-center rounded-2xl bg-sideout-cream p-6"
-        >
-          <MockQrCode value={counterToken} label="QR code for counter stamp" />
-        </div>
-
-        <section className="space-y-4 text-center">
-          <div className="space-y-1">
-            <h2 className="text-left text-lg font-medium uppercase tracking-tight">
-              Loyalty card
-            </h2>
-            <p className="text-left text-sm text-sideout-cream/80">
-              @{handle}
+        <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-10">
+          <section className="space-y-2 text-center lg:text-left">
+            <h1 className="text-4xl font-medium uppercase tracking-tight md:text-5xl">
+              Show at the counter
+            </h1>
+            <p className="text-sm text-sideout-cream/80">
+              Show this QR code to the counter after your purchase to get your
+              stamp
             </p>
-          </div>
+            {loyalty.earn_status.limitReached && loyalty.earn_status.message ? (
+              <p className="text-xs text-sideout-gold">
+                {loyalty.earn_status.message}
+              </p>
+            ) : null}
 
-          <div className="rounded-2xl bg-sideout-cream p-4 text-sideout-green">
-            <StampGrid
-              ref={stampGridRef}
-              filledCount={filledCount}
-              hoveringSlot={hoveringSlot}
-            />
-          </div>
-
-          {activeCompleted ? (
-            <button
-              type="button"
-              onClick={() => void handleRedeem(loyalty.active_card.id)}
-              className="w-full rounded-full bg-sideout-gold px-6 py-3 text-sm font-bold uppercase tracking-wide text-sideout-green"
+            <div
+              ref={counterQrRef}
+              className="mt-6 flex justify-center rounded-2xl bg-sideout-cream p-6 lg:mt-8"
             >
-              Redeem completed card
-            </button>
-          ) : null}
+              <MockQrCode
+                value={counterToken}
+                label="QR code for counter stamp"
+              />
+            </div>
+          </section>
 
-          <p className="text-[11px] uppercase leading-relaxed tracking-wide text-sideout-cream/90">
-            Get a stamp with every drink.
-            <br />
-            Completed cards will go directly to your card history.
-          </p>
-        </section>
+          <section className="space-y-4 text-center lg:text-left">
+            <div className="space-y-1">
+              <h2 className="text-lg font-medium uppercase tracking-tight md:text-xl">
+                Loyalty card
+              </h2>
+              <p className="text-sm text-sideout-cream/80">@{handle}</p>
+            </div>
+
+            <div className="rounded-2xl bg-sideout-cream p-4 text-sideout-green">
+              <StampGrid
+                ref={stampGridRef}
+                filledCount={filledCount}
+                hoveringSlot={hoveringSlot}
+              />
+            </div>
+
+            {activeCompleted ? (
+              <button
+                type="button"
+                onClick={() => void handleRedeem(loyalty.active_card.id)}
+                className="w-full rounded-full bg-sideout-gold px-6 py-3 text-sm font-bold uppercase tracking-wide text-sideout-green"
+              >
+                Redeem completed card
+              </button>
+            ) : null}
+
+            <p className="text-[11px] uppercase leading-relaxed tracking-wide text-sideout-cream/90">
+              Get a stamp with every drink.
+              <br />
+              Completed cards will go directly to your card history.
+            </p>
+          </section>
+        </div>
 
         <section className="space-y-4">
           <h2 className="text-left text-xl font-medium uppercase tracking-tight">

@@ -20,7 +20,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="antialiased font-sans">
         <Providers>
-          <div className="mx-auto min-h-dvh w-full max-w-[430px] bg-sideout-green">
+          <div className="mx-auto min-h-dvh w-full max-w-app bg-sideout-green">
             {children}
           </div>
         </Providers>

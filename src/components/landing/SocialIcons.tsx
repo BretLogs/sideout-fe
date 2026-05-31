@@ -42,10 +42,11 @@ export function SocialIcons() {
   return (
     <ul className="flex items-center justify-center gap-4">
       {socialLinks.map(({ label, href, icon }) => (
-        <li key={label}>
+        <li key={label} data-landing="social-icon">
           <a
             href={href}
             target="_blank"
+            rel="noopener noreferrer"
             aria-label={label}
             className="flex h-12 w-12 items-center justify-center rounded-full bg-sideout-cream text-sideout-green transition-opacity hover:opacity-90"
           >
