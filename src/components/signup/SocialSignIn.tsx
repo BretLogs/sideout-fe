@@ -30,9 +30,15 @@ function GoogleIcon() {
 
 type SocialSignInProps = {
   mode: "signin" | "signup";
+  disabled?: boolean;
+  disabledReason?: string;
 };
 
-export function SocialSignIn({ mode }: SocialSignInProps) {
+export function SocialSignIn({
+  mode,
+  disabled = false,
+  disabledReason,
+}: SocialSignInProps) {
   const router = useRouter();
   const { signInWithGoogle } = useAuth();
   const [error, setError] = useState<string | null>(null);
@@ -58,7 +64,7 @@ export function SocialSignIn({ mode }: SocialSignInProps) {
       <div className="flex justify-center">
         <button
           type="button"
-          disabled={submitting}
+          disabled={submitting || disabled}
           aria-label={mode === "signup" ? "Sign up with Google" : "Sign in with Google"}
           onClick={handleGoogle}
           className="flex h-12 w-12 items-center justify-center rounded-full bg-sideout-cream transition-opacity hover:opacity-90 disabled:opacity-50"
@@ -68,6 +74,9 @@ export function SocialSignIn({ mode }: SocialSignInProps) {
       </div>
       {error ? (
         <p className="mt-3 text-center text-sm text-red-300">{error}</p>
+      ) : null}
+      {!error && disabledReason ? (
+        <p className="mt-3 text-center text-xs text-sideout-cream/75">{disabledReason}</p>
       ) : null}
     </div>
   );

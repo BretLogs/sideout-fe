@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { SocialSignIn } from "@/components/signup/SocialSignIn";
 import { useAuth } from "@/contexts/AuthContext";
@@ -12,11 +12,17 @@ const inputClassName =
 
 export function SignInForm() {
   const router = useRouter();
-  const { signInWithEmail } = useAuth();
+  const { signInWithEmail, user, isLoading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!isLoading && user) {
+      router.replace("/loyalties");
+    }
+  }, [isLoading, user, router]);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { SocialSignIn } from "@/components/signup/SocialSignIn";
 import { useAuth } from "@/contexts/AuthContext";
@@ -14,13 +14,20 @@ const USERNAME_PATTERN = /^[a-z0-9_]{3,30}$/;
 
 export function SignUpForm() {
   const router = useRouter();
-  const { signUpWithEmail } = useAuth();
+  const { signUpWithEmail, user, isLoading } = useAuth();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const submitInFlight = useRef(false);
+
+  useEffect(() => {
+    if (!isLoading && user) {
+      router.replace("/loyalties");
+    }
+  }, [isLoading, user, router]);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -36,6 +43,10 @@ export function SignUpForm() {
     }
     if (password.length < 6) {
       setError("Password must be at least 6 characters.");
+      return;
+    }
+    if (!acceptedTerms) {
+      setError("You must agree to the Terms and Privacy Policy to continue.");
       return;
     }
 
@@ -106,18 +117,52 @@ export function SignUpForm() {
             placeholder="Create a password"
           />
         </div>
+        <label className="flex items-start gap-3 rounded-lg border border-sideout-cream/25 bg-sideout-green/40 p-3 text-xs leading-relaxed text-sideout-cream/85">
+          <input
+            type="checkbox"
+            checked={acceptedTerms}
+            onChange={(e) => setAcceptedTerms(e.target.checked)}
+            className="mt-0.5 h-4 w-4 shrink-0 rounded border-sideout-cream/50 bg-transparent accent-sideout-cream"
+          />
+          <span>
+            I agree to the{" "}
+            <Link
+              href="/terms"
+              className="font-medium text-sideout-cream underline underline-offset-2 hover:opacity-90"
+            >
+              Terms and Conditions
+            </Link>{" "}
+            and{" "}
+            <Link
+              href="/privacy-policy"
+              className="font-medium text-sideout-cream underline underline-offset-2 hover:opacity-90"
+            >
+              Privacy Policy
+            </Link>
+            , including the use of my email for campaign and promotional
+            communications.
+          </span>
+        </label>
         {error ? (
           <p className="text-center text-sm text-red-300">{error}</p>
         ) : null}
         <button
           type="submit"
-          disabled={submitting}
+          disabled={submitting || !acceptedTerms}
           className="w-full rounded-full bg-sideout-cream py-2.5 text-sm font-medium uppercase tracking-wide text-sideout-green transition-opacity hover:opacity-90 disabled:opacity-50"
         >
           {submitting ? "Creating account…" : "Create account"}
         </button>
       </form>
-      <SocialSignIn mode="signup" />
+      <SocialSignIn
+        mode="signup"
+        disabled={!acceptedTerms}
+        disabledReason={
+          acceptedTerms
+            ? undefined
+            : "Accept Terms and Privacy Policy to continue with Google."
+        }
+      />
       <p className="mt-6 text-center text-sm text-sideout-cream/80">
         Already have an account?{" "}
         <Link

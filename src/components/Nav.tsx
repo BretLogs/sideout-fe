@@ -1,9 +1,13 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
+import { useAuth } from "@/contexts/AuthContext";
 import { ContentColumn } from "@/components/layout/ContentColumn";
 import { navGhostLinkClassName, navJoinCtaClassName } from "@/components/landing/ctaStyles";
-import { LoyaltyIcon, MapPinIcon } from "@/components/nav/NavIcons";
+import { LogoutIcon, LoyaltyIcon, MapPinIcon } from "@/components/nav/NavIcons";
 
 type NavProps = {
   /**
@@ -14,6 +18,14 @@ type NavProps = {
 };
 
 export function Nav({ mode = "marketing" }: NavProps) {
+  const router = useRouter();
+  const { signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+    router.replace("/sign-in");
+  };
+
   return (
     <nav
       className="border-b border-sideout-cream/20 bg-sideout-green"
@@ -54,7 +66,16 @@ export function Nav({ mode = "marketing" }: NavProps) {
               <span className="inline">Join loyalty</span>
             </Link>
           </div>
-        ) : null}
+        ) : (
+          <button
+            type="button"
+            onClick={() => void handleSignOut()}
+            aria-label="Sign out"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-sideout-cream/40 text-sideout-cream transition-opacity hover:opacity-90"
+          >
+            <LogoutIcon className="h-4 w-4" />
+          </button>
+        )}
       </ContentColumn>
     </nav>
   );

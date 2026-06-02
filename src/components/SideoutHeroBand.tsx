@@ -29,7 +29,7 @@ export function SideoutHeroBand({
         <img
           src={FILLER_SRC}
           alt=""
-          className="h-full w-full object-cover object-top mix-blend-screen opacity-50"
+          className="h-full w-full object-cover object-top mix-blend-screen"
           decoding="async"
         />
       </div>

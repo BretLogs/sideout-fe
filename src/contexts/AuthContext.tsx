@@ -1,7 +1,9 @@
 import {
+  browserLocalPersistence,
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
   onAuthStateChanged,
+  setPersistence,
   signInWithEmailAndPassword,
   signInWithPopup,
   signOut as firebaseSignOut,
@@ -83,20 +85,40 @@ function mapFirebaseError(code: string): string {
   }
 }
 
+async function ensureWebPersistence() {
+  const auth = getFirebaseAuth();
+  await setPersistence(auth, browserLocalPersistence);
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(isFirebaseConfigured());
 
   useEffect(() => {
+    let mounted = true;
     if (!isFirebaseConfigured()) {
       setIsLoading(false);
       return;
     }
-    const auth = getFirebaseAuth();
-    return onAuthStateChanged(auth, (next) => {
-      setUser(next);
-      setIsLoading(false);
-    });
+
+    let unsubscribe: (() => void) | undefined;
+    void (async () => {
+      try {
+        await ensureWebPersistence();
+      } finally {
+        if (!mounted) return;
+        const auth = getFirebaseAuth();
+        unsubscribe = onAuthStateChanged(auth, (next) => {
+          setUser(next);
+          setIsLoading(false);
+        });
+      }
+    })();
+
+    return () => {
+      mounted = false;
+      unsubscribe?.();
+    };
   }, []);
 
   const getIdToken = useCallback(async () => {

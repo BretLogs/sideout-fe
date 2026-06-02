@@ -33,3 +33,20 @@ export function MapPinIcon({ className = "h-4 w-4" }: IconProps) {
     </svg>
   );
 }
+
+export function LogoutIcon({ className = "h-4 w-4" }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      aria-hidden
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9 21H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M16 17l5-5-5-5" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M21 12H9" />
+    </svg>
+  );
+}

@@ -16,7 +16,7 @@ export function BottomFillerBackground() {
       <img
         src={FILLER_SRC}
         alt=""
-        className="w-full h-auto max-w-full origin-bottom mix-blend-screen opacity-50"
+        className="w-full h-auto max-w-full origin-bottom mix-blend-screen opacity-90"
         style={{ transform: `translateY(${FILLER_Y_OFFSET})` }}
         decoding="async"
       />
