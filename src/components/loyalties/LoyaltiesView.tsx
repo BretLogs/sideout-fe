@@ -8,6 +8,7 @@ import {
 } from "@/lib/api/loyalty";
 import { ApiError } from "@/lib/api/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLoyaltyPolling } from "@/hooks/useLoyaltyPolling";
 import { CardHistoryItem } from "./CardHistoryItem";
 import { DevCounterScanFab } from "./DevStampFab";
 import { MockQrCode } from "./MockQrCode";
@@ -15,6 +16,7 @@ import { RedeemModal } from "./RedeemModal";
 import { StampGrid, type StampGridHandle } from "./StampGrid";
 
 const IS_DEV = process.env.NODE_ENV === "development";
+const UI_STAMP_SLOTS = 9;
 
 function isoToDisplayDate(iso: string | null | undefined): string | null {
   if (!iso) return null;
@@ -37,32 +39,77 @@ export function LoyaltiesView() {
   const [hoveringSlot, setHoveringSlot] = useState<number | null>(null);
   const stampGridRef = useRef<StampGridHandle>(null);
   const counterQrRef = useRef<HTMLDivElement>(null);
+  const loyaltySnapshotRef = useRef<{ cardId: string; pointCount: number } | null>(
+    null,
+  );
 
-  const loadLoyalty = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const token = await getIdToken();
-      if (!token) {
-        setError("Please sign in to view your loyalty card.");
-        return;
+  const applyLoyaltyUpdate = useCallback(
+    (data: LoyaltyResponse, options?: { detectNewStamp?: boolean }) => {
+      const prev = loyaltySnapshotRef.current;
+      if (
+        options?.detectNewStamp &&
+        prev &&
+        prev.cardId === data.active_card.id &&
+        data.active_card.pointCount > prev.pointCount
+      ) {
+        setHoveringSlot(
+          Math.min(data.active_card.pointCount, UI_STAMP_SLOTS),
+        );
       }
-      const data = await getLoyalty(token);
+
+      loyaltySnapshotRef.current = {
+        cardId: data.active_card.id,
+        pointCount: data.active_card.pointCount,
+      };
       setLoyalty(data);
-    } catch (err) {
-      setError(
-        err instanceof ApiError
-          ? err.message
-          : "Could not load loyalty data. Is the API running?",
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, [getIdToken]);
+    },
+    [],
+  );
+
+  const loadLoyalty = useCallback(
+    async (options?: { silent?: boolean }) => {
+      if (!options?.silent) {
+        setLoading(true);
+        setError(null);
+      }
+
+      try {
+        const token = await getIdToken();
+        if (!token) {
+          if (!options?.silent) {
+            setError("Please sign in to view your loyalty card.");
+          }
+          return;
+        }
+        const data = await getLoyalty(token);
+        applyLoyaltyUpdate(data, { detectNewStamp: options?.silent });
+      } catch (err) {
+        if (!options?.silent) {
+          setError(
+            err instanceof ApiError
+              ? err.message
+              : "Could not load loyalty data. Is the API running?",
+          );
+        }
+      } finally {
+        if (!options?.silent) {
+          setLoading(false);
+        }
+      }
+    },
+    [applyLoyaltyUpdate, getIdToken],
+  );
+
+  const pollLoyalty = useCallback(
+    () => loadLoyalty({ silent: true }),
+    [loadLoyalty],
+  );
 
   useEffect(() => {
     void loadLoyalty();
   }, [loadLoyalty]);
+
+  useLoyaltyPolling(!loading && !error && loyalty !== null, pollLoyalty);
 
   const filledCount = loyalty?.active_card.pointCount ?? 0;
   const handle = loyalty?.username ?? loyalty?.display_name ?? "guest";
