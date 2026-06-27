@@ -36,6 +36,7 @@ export function LoyaltiesView() {
   const [redeemOpen, setRedeemOpen] = useState(false);
   const [redeemToken, setRedeemToken] = useState<string | null>(null);
   const [redeemMessage, setRedeemMessage] = useState<string | null>(null);
+  const [canRedeemNow, setCanRedeemNow] = useState(true);
   const [hoveringSlot, setHoveringSlot] = useState<number | null>(null);
   const stampGridRef = useRef<StampGridHandle>(null);
   const counterQrRef = useRef<HTMLDivElement>(null);
@@ -122,6 +123,7 @@ export function LoyaltiesView() {
       const result = await createRedeemToken(loyaltyCardId, token);
       setRedeemToken(result.token);
       setRedeemMessage(result.message);
+      setCanRedeemNow(result.can_redeem_now);
       setRedeemOpen(true);
     } catch (err) {
       setError(
@@ -210,13 +212,25 @@ export function LoyaltiesView() {
             </div>
 
             {activeCompleted ? (
-              <button
-                type="button"
-                onClick={() => void handleRedeem(loyalty.active_card.id)}
-                className="w-full rounded-full bg-sideout-gold px-6 py-3 text-sm font-bold uppercase tracking-wide text-sideout-green"
-              >
-                Redeem completed card
-              </button>
+              <div className="space-y-2">
+                {loyalty.active_card.redeemStatus &&
+                !loyalty.active_card.redeemStatus.canRedeemNow ? (
+                  <p className="text-xs leading-relaxed text-sideout-gold">
+                    {loyalty.active_card.redeemStatus.customerMessage}
+                  </p>
+                ) : loyalty.active_card.redeemStatus?.canRedeemNow ? (
+                  <p className="text-xs leading-relaxed text-sideout-cream/80">
+                    {loyalty.active_card.redeemStatus.customerMessage}
+                  </p>
+                ) : null}
+                <button
+                  type="button"
+                  onClick={() => void handleRedeem(loyalty.active_card.id)}
+                  className="w-full rounded-full bg-sideout-gold px-6 py-3 text-sm font-bold uppercase tracking-wide text-sideout-green"
+                >
+                  Redeem completed card
+                </button>
+              </div>
             ) : null}
 
             <p className="text-[11px] uppercase leading-relaxed tracking-wide text-sideout-cream/90">
@@ -261,6 +275,7 @@ export function LoyaltiesView() {
         }}
         redeemToken={redeemToken}
         redeemMessage={redeemMessage}
+        canRedeemNow={canRedeemNow}
       />
 
       {IS_DEV ? (

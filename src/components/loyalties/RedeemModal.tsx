@@ -12,6 +12,7 @@ type RedeemModalProps = {
   onClose: () => void;
   redeemToken: string | null;
   redeemMessage?: string | null;
+  canRedeemNow?: boolean;
 };
 
 export function RedeemModal({
@@ -19,6 +20,7 @@ export function RedeemModal({
   onClose,
   redeemToken,
   redeemMessage,
+  canRedeemNow = true,
 }: RedeemModalProps) {
   const titleId = useId();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -78,6 +80,14 @@ export function RedeemModal({
   if (!open) return null;
 
   const qrValue = redeemToken ?? "";
+  const waitingToRedeem = !redeemed && !canRedeemNow;
+  const subtitle = redeemed
+    ? "Your card has been redeemed. Show this to the counter staff if needed."
+    : waitingToRedeem
+      ? (redeemMessage ??
+        "This QR is not active at the counter yet. Check the date below.")
+      : (redeemMessage ??
+        "Show this QR code to the counter to redeem your completed card.");
 
   return (
     <div
@@ -136,21 +146,37 @@ export function RedeemModal({
                 id={titleId}
                 className="text-2xl font-bold uppercase leading-tight tracking-tight"
               >
-                {redeemed ? "You're all set" : "Redeem at the counter"}
+                {redeemed
+                  ? "You're all set"
+                  : waitingToRedeem
+                    ? "Redeem opens soon"
+                    : "Redeem at the counter"}
               </h2>
               <p className="text-xs leading-relaxed text-sideout-green/70">
-                {redeemed
-                  ? "Your card has been redeemed. Show this to the counter staff if needed."
-                  : redeemMessage ??
-                    "Show this QR code to the counter to redeem your completed card."}
+                {subtitle}
               </p>
             </div>
           </header>
 
+          {waitingToRedeem ? (
+            <div
+              className="mt-4 rounded-xl border border-amber-600/30 bg-amber-50 px-4 py-3 text-center"
+              role="status"
+            >
+              <p className="text-[11px] font-bold uppercase tracking-wide text-amber-900/80">
+                Not active at the counter yet
+              </p>
+              <p className="mt-1 text-xs leading-relaxed text-amber-950/80">
+                Staff cannot scan this QR until your reward window opens. Save
+                this screen and return then.
+              </p>
+            </div>
+          ) : null}
+
           <div
             ref={qrRef}
-            className={`mt-6 flex justify-center rounded-2xl bg-sideout-green p-6 transition-opacity ${
-              redeemed ? "opacity-40" : "opacity-100"
+            className={`relative mt-6 flex justify-center rounded-2xl bg-sideout-green p-6 transition-opacity ${
+              redeemed || waitingToRedeem ? "opacity-60" : "opacity-100"
             }`}
           >
             <div className="rounded-lg bg-sideout-cream p-3 shadow-inner">
@@ -164,6 +190,13 @@ export function RedeemModal({
                 <p className="p-8 text-sm text-sideout-green">Loading QR…</p>
               )}
             </div>
+            {waitingToRedeem ? (
+              <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-sideout-green/50 px-6">
+                <p className="text-center text-xs font-semibold uppercase tracking-wide text-sideout-cream">
+                  Opens when your reward window starts
+                </p>
+              </div>
+            ) : null}
           </div>
 
           <div
@@ -184,7 +217,7 @@ export function RedeemModal({
             </div>
           </section>
 
-          {IS_DEV && !redeemed && (
+          {IS_DEV && !redeemed && canRedeemNow && (
             <button
               type="button"
               onClick={runRedeemCelebration}

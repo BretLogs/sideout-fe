@@ -6,6 +6,11 @@ export type LoyaltyCard = {
   pointsRequired: number;
   state: "in_progress" | "completed" | "redeemed";
   redeemEligibleAt: string | null;
+  redeemStatus?: {
+    canRedeemNow: boolean;
+    redeemEligibleAt: string;
+    customerMessage: string;
+  } | null;
 };
 
 export type LoyaltyResponse = {
