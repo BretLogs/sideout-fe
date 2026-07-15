@@ -89,7 +89,7 @@ export function LoyaltiesView() {
           setError(
             err instanceof ApiError
               ? err.message
-              : "Could not load loyalty data. Is the API running?",
+              : "We're under maintenance. We'll get you back online soon.",
           );
         }
       } finally {
