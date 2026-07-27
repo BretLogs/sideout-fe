@@ -3,6 +3,7 @@ import { BottomFillerBackground } from "@/components/BottomFillerBackground";
 import { ContentColumn } from "@/components/layout/ContentColumn";
 import { LoyaltiesView } from "@/components/loyalties/LoyaltiesView";
 import { Nav } from "@/components/Nav";
+import { PoweredByStappl } from "@/components/PoweredByStappl";
 
 export const metadata = {
   title: "Loyalties — Sideout",
@@ -10,9 +11,9 @@ export const metadata = {
 
 export default function LoyaltiesPage() {
   return (
-    <div className="relative min-h-dvh bg-sideout-green text-sideout-cream">
+    <div className="relative flex min-h-dvh flex-col bg-sideout-green text-sideout-cream">
       <BottomFillerBackground />
-      <div className="relative z-10">
+      <div className="relative z-10 flex-1">
         <Nav mode="app" />
         <main className="py-8">
           <ContentColumn>
@@ -22,6 +23,7 @@ export default function LoyaltiesPage() {
           </ContentColumn>
         </main>
       </div>
+      <PoweredByStappl className="relative z-10 pb-8 pt-4" />
     </div>
   );
 }

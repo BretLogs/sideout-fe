@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  awardDevStamp,
   createRedeemToken,
   getLoyalty,
   type LoyaltyResponse,
@@ -13,7 +14,7 @@ import { CardHistoryItem } from "./CardHistoryItem";
 import { DevCounterScanFab } from "./DevStampFab";
 import { MockQrCode } from "./MockQrCode";
 import { RedeemModal } from "./RedeemModal";
-import { StampGrid, type StampGridHandle } from "./StampGrid";
+import { StampGrid } from "./StampGrid";
 
 const IS_DEV = process.env.NODE_ENV === "development";
 const UI_STAMP_SLOTS = 9;
@@ -38,8 +39,6 @@ export function LoyaltiesView() {
   const [redeemMessage, setRedeemMessage] = useState<string | null>(null);
   const [canRedeemNow, setCanRedeemNow] = useState(true);
   const [hoveringSlot, setHoveringSlot] = useState<number | null>(null);
-  const stampGridRef = useRef<StampGridHandle>(null);
-  const counterQrRef = useRef<HTMLDivElement>(null);
   const loyaltySnapshotRef = useRef<{ cardId: string; pointCount: number } | null>(
     null,
   );
@@ -132,9 +131,21 @@ export function LoyaltiesView() {
     }
   };
 
-  const handleDevStampAdded = (slot: number) => {
-    setHoveringSlot(slot);
-    void loadLoyalty();
+  const handleDevStamp = async () => {
+    try {
+      const token = await getIdToken();
+      if (!token) return;
+      const result = await awardDevStamp(token);
+      if (!result.success) {
+        setError(result.message ?? "Dev stamp failed.");
+        return;
+      }
+      await loadLoyalty({ silent: true });
+    } catch (err) {
+      setError(
+        err instanceof ApiError ? err.message : "Dev stamp failed.",
+      );
+    }
   };
 
   if (loading) {
@@ -184,10 +195,7 @@ export function LoyaltiesView() {
               </p>
             ) : null}
 
-            <div
-              ref={counterQrRef}
-              className="mt-6 flex justify-center rounded-2xl bg-sideout-cream p-6"
-            >
+            <div className="mt-6 flex justify-center rounded-2xl bg-sideout-cream p-6">
               <MockQrCode
                 value={counterToken}
                 label="QR code for counter stamp"
@@ -205,7 +213,6 @@ export function LoyaltiesView() {
 
             <div className="rounded-2xl bg-sideout-cream p-4 text-sideout-green">
               <StampGrid
-                ref={stampGridRef}
                 filledCount={filledCount}
                 hoveringSlot={hoveringSlot}
               />
@@ -281,9 +288,7 @@ export function LoyaltiesView() {
       {IS_DEV ? (
         <DevCounterScanFab
           filledCount={filledCount}
-          counterQrRef={counterQrRef}
-          stampGridRef={stampGridRef}
-          onStampAdded={handleDevStampAdded}
+          onStamp={handleDevStamp}
         />
       ) : null}
     </>

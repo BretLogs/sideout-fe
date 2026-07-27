@@ -54,3 +54,18 @@ export async function createRedeemToken(
     token,
   });
 }
+
+export type DevStampResponse = {
+  success: boolean;
+  message: string | null;
+  point_count: number | null;
+  rejection_code: string | null;
+};
+
+/** DEV-only: emulate a mobile counter scan (bypasses hours + daily limit). */
+export async function awardDevStamp(token: string): Promise<DevStampResponse> {
+  return apiRequest<DevStampResponse>("/me/loyalty/dev-stamp", {
+    method: "POST",
+    token,
+  });
+}

@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { ContentColumn } from "@/components/layout/ContentColumn";
+import { PoweredByStappl } from "@/components/PoweredByStappl";
 
 import { SocialIcons } from "./SocialIcons";
 
@@ -44,6 +45,9 @@ export function Footer() {
         >
           © {year} Sideout Café · Lumban, Laguna
         </p>
+        <div data-landing="footer-part">
+          <PoweredByStappl className="mt-2" />
+        </div>
       </ContentColumn>
     </footer>
   );
