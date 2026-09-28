@@ -16,6 +16,7 @@ type RequestOptions = {
   method?: string;
   body?: unknown;
   token?: string | null;
+  keepalive?: boolean;
 };
 
 export async function apiRequest<T>(
@@ -39,6 +40,7 @@ export async function apiRequest<T>(
     headers,
     body: options.body != null ? JSON.stringify(options.body) : undefined,
     cache: "no-store",
+    keepalive: options.keepalive,
   });
 
   const text = await response.text();
