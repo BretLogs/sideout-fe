@@ -67,6 +67,7 @@ export function SignUpForm() {
 
   return (
     <>
+      <SocialSignIn mode="signup" placement="above" />
       <form className="space-y-4" onSubmit={handleSubmit}>
         <div className="space-y-1.5">
           <label htmlFor="username" className="text-sm font-medium">
@@ -154,15 +155,6 @@ export function SignUpForm() {
           {submitting ? "Creating account…" : "Create account"}
         </button>
       </form>
-      <SocialSignIn
-        mode="signup"
-        disabled={!acceptedTerms}
-        disabledReason={
-          acceptedTerms
-            ? undefined
-            : "Accept Terms and Privacy Policy to continue with Google."
-        }
-      />
       <p className="mt-6 text-center text-sm text-sideout-cream/80">
         Already have an account?{" "}
         <Link

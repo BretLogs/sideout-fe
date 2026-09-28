@@ -63,7 +63,7 @@ export function FindUs() {
           className={creamPillClassName}
         >
           <MapsIcon />
-          Go to Sideout
+          Go to Sideout Café
         </Link>
       </ContentColumn>
     </section>

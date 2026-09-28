@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { GoogleSignupConsentModal } from "@/components/signup/GoogleSignupConsentModal";
 import { useAuth } from "@/contexts/AuthContext";
 
 function GoogleIcon() {
@@ -30,12 +31,14 @@ function GoogleIcon() {
 
 type SocialSignInProps = {
   mode: "signin" | "signup";
+  placement?: "above" | "below";
   disabled?: boolean;
   disabledReason?: string;
 };
 
 export function SocialSignIn({
   mode,
+  placement = "below",
   disabled = false,
   disabledReason,
 }: SocialSignInProps) {
@@ -43,6 +46,7 @@ export function SocialSignIn({
   const { signInWithGoogle } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [consentOpen, setConsentOpen] = useState(false);
 
   const handleGoogle = async () => {
     setError(null);
@@ -53,30 +57,75 @@ export function SocialSignIn({
       setError(result.error);
       return;
     }
+    setConsentOpen(false);
     router.replace("/loyalties");
   };
 
+  const handleGoogleClick = () => {
+    if (mode === "signup") {
+      setError(null);
+      setConsentOpen(true);
+      return;
+    }
+    void handleGoogle();
+  };
+
+  const googleButton = (
+    <div className="flex justify-center">
+      <button
+        type="button"
+        disabled={submitting || disabled}
+        aria-haspopup={mode === "signup" ? "dialog" : undefined}
+        aria-label={mode === "signup" ? "Sign up with Google" : "Sign in with Google"}
+        onClick={handleGoogleClick}
+        className="flex h-12 w-12 items-center justify-center rounded-full bg-sideout-cream transition-opacity hover:opacity-90 disabled:opacity-50"
+      >
+        <GoogleIcon />
+      </button>
+    </div>
+  );
+
+  const divider = (
+    <p className="my-8 text-center text-xs font-base uppercase tracking-wide text-sideout-cream/80">
+      or continue with
+    </p>
+  );
+
+  const inlineError =
+    mode === "signup" && consentOpen ? null : error ? (
+      <p className="mt-3 text-center text-sm text-red-300">{error}</p>
+    ) : !error && disabledReason ? (
+      <p className="mt-3 text-center text-xs text-sideout-cream/75">{disabledReason}</p>
+    ) : null;
+
   return (
-    <div className="pt-2">
-      <p className="my-8 text-center text-xs font-base uppercase tracking-wide text-sideout-cream/80">
-        or continue with
-      </p>
-      <div className="flex justify-center">
-        <button
-          type="button"
-          disabled={submitting || disabled}
-          aria-label={mode === "signup" ? "Sign up with Google" : "Sign in with Google"}
-          onClick={handleGoogle}
-          className="flex h-12 w-12 items-center justify-center rounded-full bg-sideout-cream transition-opacity hover:opacity-90 disabled:opacity-50"
-        >
-          <GoogleIcon />
-        </button>
-      </div>
-      {error ? (
-        <p className="mt-3 text-center text-sm text-red-300">{error}</p>
-      ) : null}
-      {!error && disabledReason ? (
-        <p className="mt-3 text-center text-xs text-sideout-cream/75">{disabledReason}</p>
+    <div className={placement === "below" ? "pt-2" : undefined}>
+      {placement === "above" ? (
+        <>
+          {googleButton}
+          {divider}
+        </>
+      ) : (
+        <>
+          {divider}
+          {googleButton}
+        </>
+      )}
+      {inlineError}
+      {mode === "signup" ? (
+        <GoogleSignupConsentModal
+          open={consentOpen}
+          submitting={submitting}
+          error={error}
+          onClose={() => {
+            if (submitting) return;
+            setConsentOpen(false);
+            setError(null);
+          }}
+          onContinue={() => {
+            void handleGoogle();
+          }}
+        />
       ) : null}
     </div>
   );
