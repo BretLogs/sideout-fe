@@ -1,5 +1,5 @@
 const API_BASE_URL =
-  process.env.NEXT_API_URL ?? "http://localhost:8000/api/v1/sample";
+  process.env.API_URL ?? "http://localhost:8000/api/v1";
 
 export class ApiError extends Error {
   constructor(
